@@ -1,6 +1,6 @@
 # FleetHub
 
-FleetHub is a mobile fleet-management app. Operators scan a vehicle's VIN with the camera, locate each unit on a live map, and update its status (in transit, storage, service, reserved, sold)
+FleetHub is a mobile fleet-management app. Operators scan a vehicle's VIN with the camera, locate each unit on a live map, and update its status (in transit, storage, service, reserved, sold).
 
 ## Stack
 
@@ -13,15 +13,15 @@ in an iOS device frame:
 
 | Code | Screen | Code | Screen |
 | --- | --- | --- | --- |
-| A | Inicio de sesión | 04 | Alertas |
-| B | Registro | 05 | Perfil |
-| C | Confirmar código | 05b | Datos personales |
-| D | Crear contraseña | 06 | Administración |
-| 00 | Dashboard (mapa en vivo) | 06b | Admin · Rutas |
-| 00b | Modificar unidad | 06c | Admin · Editar ruta |
-| 01 | Escaneo VIN | 07 | Admin · Usuarios |
-| 02 | Confirmación VIN | 07b | Admin · Código de alta |
-| 03 | Flota | 08 | Admin · Historial |
+| A | Sign in | 04 | Alerts |
+| B | Registration | 05 | Profile |
+| C | Confirm code | 05b | Personal information |
+| D | Create password | 06 | Administration |
+| 00 | Dashboard (live map) | 06b | Admin · Routes |
+| 00b | Edit unit | 06c | Admin · Edit route |
+| 01 | VIN scanning | 07 | Admin · Users |
+| 02 | VIN confirmation | 07b | Admin · Enrollment code |
+| 03 | Fleet | 08 | Admin · History |
 
 ### Layout
 
@@ -56,66 +56,66 @@ in an iOS device frame:
 | `npm run preview` | Serve the `dist/` build locally |
 | `npm run lint` | oxlint |
 
-## Autocompletado de direcciones
+## Address autocomplete
 
-El editor de locations consulta Geoapify a través del servidor; la llave nunca
-se envía al frontend. Copia `.env.example` como `.env`, establece
-`GEOAPIFY_API_KEY` y reinicia `npm run server`. La búsqueda espera 300 ms entre
-la escritura y la consulta, muestra hasta cinco direcciones y guarda únicamente
-la dirección seleccionada con su latitud y longitud. El desplegable conserva la
-atribución exigida por el plan gratuito.
+The location editor queries Geoapify through the server, so the API key is never
+sent to the frontend. Copy `.env.example` to `.env`, set `GEOAPIFY_API_KEY`, and
+restart `npm run server`. Search waits 300 ms after input, displays up to five
+addresses, and stores only the selected address with its latitude and longitude.
+The dropdown preserves the attribution required by Geoapify's free plan.
 
-## Configuración y seguridad
+## Configuration and security
 
-`.env.example` contiene únicamente nombres y valores de desarrollo; `.env` está
-ignorado y nunca debe publicarse. En Netlify los secretos se configuran desde el
-panel o CLI, no en `netlify.toml`.
+`.env.example` contains only variable names and development values. `.env` is
+ignored and must never be published. Configure secrets in the Netlify dashboard
+or CLI, not in `netlify.toml`.
 
-Los códigos de correo/teléfono tienen dos modos explícitos:
+Email and phone verification codes have two explicit modes:
 
-- Desarrollo local: `ALLOW_INSECURE_AUTH_CODES=true` permite que la interfaz
-  muestre el código para probar el flujo sin proveedor.
-- Producción: configure `AUTH_DELIVERY_WEBHOOK_URL` y opcionalmente
-  `AUTH_DELIVERY_TOKEN`. El webhook recibe `addressee`, `purpose`, `code` y
-  `expiresAt`; con la opción insegura desactivada el código nunca aparece en la
-  respuesta del API. Si no existe un canal de entrega, el servidor rechaza la
-  operación en lugar de fingir que envió el código.
+- Local development: `ALLOW_INSECURE_AUTH_CODES=true` lets the interface display
+  the code so the flow can be tested without a delivery provider.
+- Production: configure `AUTH_DELIVERY_WEBHOOK_URL` and, optionally,
+  `AUTH_DELIVERY_TOKEN`. The webhook receives `addressee`, `purpose`, `code`, and
+  `expiresAt`. When insecure codes are disabled, the code never appears in the
+  API response. If no delivery channel is available, the server rejects the
+  operation instead of pretending that the code was sent.
 
-`ALLOWED_ORIGINS` acepta una lista separada por comas para los únicos orígenes
-que necesiten CORS. La aplicación desplegada junto a su Function funciona por
-mismo origen y no necesita CORS abierto.
+`ALLOWED_ORIGINS` accepts a comma-separated list containing only the origins
+that require CORS. When the app and its Function are deployed together, they
+share the same origin and do not require open CORS access.
 
-`FLEETHUB_STAFF_EMAILS` es la lista separada por comas de cuentas internas de
-soporte. Sólo la configuración privada del servidor puede convertir una cuenta
-en soporte; un registro o una modificación de perfil nunca puede hacerlo. El
-acceso a una compañía usa una llave de soporte, queda registrado y caduca a las
-ocho horas o cuando se cierra manualmente.
+`FLEETHUB_STAFF_EMAILS` is a comma-separated list of internal support accounts.
+Only private server configuration can grant support access; registration and
+profile updates can never do so. Company access requires a support grant, is
+recorded in the audit log, and expires after eight hours or when it is closed
+manually.
 
-## Comprobación antes de desplegar
+## Pre-deployment checks
 
-Ejecuta `npm run check`. El comando revisa el código, ejecuta todas las pruebas,
-comprueba TypeScript y genera el build. El mismo comando está configurado en
-GitHub Actions mediante `.github/workflows/quality.yml`. `npm run test:e2e`
-levanta el build con la API local y ejecuta las pruebas de navegador móvil; en
-Windows reutiliza Edge y en CI instala Chromium de forma aislada.
+Run `npm run check`. It lints the code, runs every test, checks TypeScript, and
+generates the production build. The same command runs in GitHub Actions through
+`.github/workflows/quality.yml`. `npm run test:e2e` starts the build with the
+local API and runs the mobile browser tests. On Windows it reuses Edge; in CI it
+installs an isolated copy of Chromium.
 
-## Los documentos
+## Documentation
 
-| Documento | Qué contiene |
+| Document | Contents |
 | --- | --- |
-| [`PRODUCTION_READINESS.md`](./PRODUCTION_READINESS.md) | Qué falta para producción y quién puede hacerlo |
-| [`OPERATIONS.md`](./OPERATIONS.md) | Configuración, despliegue, rollback, vigilancia y rotación de secretos |
-| [`PRIVACIDAD.md`](./PRIVACIDAD.md) | Qué se guarda, quién lo ve, cuánto dura y cómo se borra |
-| [`DECISIONES.md`](./DECISIONES.md) | Las decisiones que estaban abiertas, y qué haría falta para cambiarlas |
-| [`endpoints.json`](./endpoints.json) | El contrato del API, atado al servidor por pruebas |
+| [`PRODUCTION_READINESS.md`](./PRODUCTION_READINESS.md) | What remains before production and who can complete it |
+| [`OPERATIONS.md`](./OPERATIONS.md) | Configuration, deployment, rollback, monitoring, and secret rotation |
+| [`PRIVACIDAD.md`](./PRIVACIDAD.md) | What is stored, who can see it, how long it is retained, and how it is deleted |
+| [`DECISIONES.md`](./DECISIONES.md) | Previously open decisions and what would be required to change them |
+| [`endpoints.json`](./endpoints.json) | The API contract, kept in sync with the server through tests |
 
-## Sin conexión no
+## No offline mode
 
-FleetHub es explícitamente online. El servidor manda y la balda del navegador es
-su copia, no una cola de trabajo pendiente: no hay modo sin conexión, no hay
-acceso local con contraseña y el perfil lo dice en lugar de ofrecer un
-interruptor que no enciende nada. El porqué y qué haría falta para cambiarlo
-están en [`DECISIONES.md`](./DECISIONES.md).
+FleetHub is explicitly an online application. The server is authoritative, and
+the browser store is only a local copy rather than a queue of pending work.
+There is no offline mode or local password access, and the profile states this
+directly instead of presenting a switch that does nothing. The reasoning and
+the requirements for changing this decision are documented in
+[`DECISIONES.md`](./DECISIONES.md).
 
 ### `build:preview`
 
