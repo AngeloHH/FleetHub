@@ -1,0 +1,90 @@
+/* The design's field treatment: square, 1px border, accent outline while
+   focused, danger outline when invalid. The border is the one thing that
+   changes per render, so it is the one thing left in the JSX. */
+
+.label {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--fh-muted);
+}
+
+.note {
+  margin-top: 6px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.box {
+  margin-top: 7px;
+  background: var(--fh-surface);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prefix {
+  flex: none;
+  display: flex;
+}
+
+.input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: var(--fh-ink);
+  /* Caret matches the design's blinking accent bar. */
+  caret-color: var(--fh-accent);
+}
+
+/* ── the dialling-code picker in front of a phone field ─────────────────── */
+
+.dial {
+  display: flex;
+  align-items: center;
+}
+
+.dialTrigger {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--fh-border-soft);
+  border-radius: 0;
+  padding: 0;
+  padding-right: 6px;
+  cursor: pointer;
+  font-family: var(--fh-font-mono);
+  font-size: 13px;
+  color: var(--fh-ink);
+}
+
+.dialCode {
+  white-space: nowrap;
+}
+
+/* ── the row of single-character boxes ──────────────────────────────────── */
+
+.code {
+  display: flex;
+  gap: 7px;
+}
+
+.codeBox {
+  flex: 1;
+  width: 0;
+  text-align: center;
+  outline: none;
+  border-radius: 0;
+  font-family: var(--fh-font-mono);
+  font-weight: 600;
+  color: var(--fh-ink);
+  caret-color: var(--fh-accent);
+  padding: 0;
+}

@@ -1,0 +1,148 @@
+/* 03 · el historial de reportes, y 04 · las alertas. */
+
+.entry {
+  display: flex;
+  gap: 11px;
+  padding: 11px 12px;
+}
+
+.entryTime {
+  width: 38px;
+  flex: none;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.entryBody {
+  flex: 1;
+}
+
+.entryTitle {
+  font-family: var(--fh-font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fh-ink);
+}
+
+.entryDetail {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+  margin-top: 3px;
+}
+
+/* Square status marker; absent on yesterday's archived rows. */
+.entryStatus {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-top: 4px;
+}
+
+.dayHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.log {
+  margin: 8px 16px 0;
+  font-family: var(--fh-font-mono);
+}
+
+.exportar {
+  font-weight: 600;
+}
+
+/* ── 04 · alertas ───────────────────────────────────────────────────────── */
+
+.alertHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+}
+
+.alertSeverity {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alertTime {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  color: #fffc;
+}
+
+.alertBody {
+  padding: 12px;
+}
+
+.alertTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--fh-ink);
+}
+
+.alertDetail {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--fh-muted);
+  margin-top: 4px;
+}
+
+.alertActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.alertBtn {
+  flex: 1;
+  height: 42px;
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.alertBtnPrimary {
+  border: none;
+}
+
+.alertBtnSecondary {
+  border: 1.5px solid var(--fh-ink);
+  background: transparent;
+  color: var(--fh-ink);
+}
+
+.resolved {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  opacity: 0.65;
+}
+
+.resolvedText {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.resolvedTime {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  color: var(--fh-muted);
+}

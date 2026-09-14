@@ -1,0 +1,49 @@
+{
+  "name": "fleethub",
+  "private": true,
+  "version": "0.0.0",
+  "engines": {
+    "node": "24.x"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint src server netlify scripts",
+    "preview": "vite preview",
+    "build:preview": "vite build --mode singlefile --outDir dist-preview && node scripts/make-preview.mjs",
+    "build:fonts": "node scripts/build-fonts.mjs",
+    "build:icon-font": "node scripts/build-icon-font.mjs",
+    "build:tokens": "node scripts/build-tokens.mjs",
+    "test": "vitest run",
+    "test:e2e": "npm run build && playwright test",
+    "check": "npm run lint && npm test && npm run build",
+    "check:health": "node scripts/check-health.mjs",
+    "server": "node --env-file-if-exists=.env server/index.mjs",
+    "server:check": "node --check server/index.mjs"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "@netlify/blobs": "^11.0.1",
+    "@tesseract.js-data/eng": "^1.0.0",
+    "maplibre-gl": "^6.2.0",
+    "pg": "^8.23.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@netlify/vite-plugin": "^2.12.9",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "oxlint": "^1.75.0",
+    "playwright": "^1.62.1",
+    "pngjs": "^7.0.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.0",
+    "vite-plugin-singlefile": "^2.3.3",
+    "vitest": "^4.1.10"
+  }
+}

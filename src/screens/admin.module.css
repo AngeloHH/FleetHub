@@ -1,0 +1,654 @@
+/* 06 · el resumen, 06b · las rutas, 06c · editar ruta y 06d · ubicar punto. */
+
+/* Row of mutually exclusive segments; the active one inverts to ink. */
+.segments {
+  display: flex;
+  border-bottom: 1px solid var(--fh-border);
+  font-family: var(--fh-font-mono);
+}
+
+.segment {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Read-only search affordance used by three admin screens. */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  background: var(--fh-surface);
+  border-bottom: 1px solid var(--fh-border);
+}
+
+.searchInput {
+  flex: 1;
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--fh-ink);
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+}
+
+/* Empty, the field reads exactly as the old painted-on placeholder did. */
+.searchInput::placeholder {
+  color: var(--fh-muted-soft);
+  letter-spacing: 1px;
+}
+
+.action {
+  font-weight: 600;
+}
+
+.closer {
+  display: flex;
+}
+
+/* Uppercase monospace caption, the size these screens use under a control. */
+.note {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.hint {
+  margin: 14px 16px 0;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+}
+
+/* ── 06 · resumen ───────────────────────────────────────────────────────── */
+
+.donut {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  flex: none;
+}
+
+.donutRings {
+  transform: rotate(-90deg);
+}
+
+.donutCentre {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.donutCount {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--fh-ink);
+  line-height: 1;
+}
+
+.donutLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+  margin-top: 3px;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.legendSwatch {
+  width: 10px;
+  height: 10px;
+  flex: none;
+}
+
+.legendLabel {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.legendValue {
+  font-family: var(--fh-font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.leader {
+  padding: 10px 12px;
+}
+
+.leaderTop {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.leaderId {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  width: 52px;
+}
+
+.leaderName {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fh-ink);
+}
+
+.leaderCount {
+  font-family: var(--fh-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.leaderTrack {
+  display: flex;
+  height: 5px;
+  margin-top: 7px;
+  background: var(--fh-surface-alt);
+}
+
+.counters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--fh-surface);
+  border-bottom: 3px solid var(--fh-ink);
+}
+
+.counter {
+  padding: 13px 16px;
+}
+
+.counterLeft {
+  border-right: 1px solid var(--fh-border);
+}
+
+.counterValue {
+  font-size: 24px;
+  font-weight: 800;
+  margin-top: 3px;
+}
+
+.fleetPanel {
+  padding: 14px 16px;
+  background: var(--fh-bg);
+  border-bottom: 1px solid var(--fh-border);
+}
+
+.fleetRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.legendColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.validated {
+  padding: 13px 16px;
+  background: var(--fh-surface);
+  border-bottom: 1px solid var(--fh-border);
+}
+
+.validatedHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.validatedCount {
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.validatedTrack {
+  display: flex;
+  height: 12px;
+  margin-top: 8px;
+  background: var(--fh-surface-alt);
+}
+
+.validatedFill {
+  /* La anchura la pone la pantalla: es la parte de la flota vista hoy. */
+  background: var(--fh-ink);
+}
+
+.validatedFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 7px;
+}
+
+.stale {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-warn);
+}
+
+.link {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-accent);
+  cursor: pointer;
+}
+
+.leadersHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 0;
+}
+
+/* ── 06b · rutas ────────────────────────────────────────────────────────── */
+
+.route {
+  display: flex;
+  gap: 11px;
+  padding: 13px 16px;
+}
+
+/* The rail says at a glance whether anything runs on it. */
+.routeRail {
+  width: 3px;
+  flex: none;
+}
+
+.routeTop {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.routeCode {
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.routeName {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--fh-ink);
+}
+
+.routeFigures {
+  display: flex;
+  gap: 14px;
+  margin-top: 6px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.routeNote {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* Same square the role picker on 07b uses. */
+.tick {
+  width: 16px;
+  height: 16px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.list {
+  background: var(--fh-surface);
+}
+
+/* ── 06c · editar ruta ──────────────────────────────────────────────────── */
+
+.move {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 22px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.endpoint {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--fh-border-soft);
+}
+
+/* Three controls on one row — reorder, select, open — so each is its own
+   button and none of them can wrap the others. */
+.endpointMoves {
+  display: flex;
+  flex-direction: column;
+  padding-left: 8px;
+  flex: none;
+}
+
+.endpointSelect {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 11px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.endpointLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.endpointValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fh-ink);
+  margin-top: 2px;
+}
+
+.endpointEmpty {
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--fh-muted-soft);
+  margin-top: 4px;
+}
+
+.endpointOpen {
+  display: flex;
+  align-items: center;
+  flex: none;
+  padding: 12px 12px 12px 4px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.op {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+}
+
+.opTitle {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.opValue {
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  color: var(--fh-muted);
+}
+
+.head {
+  padding: 12px 16px;
+  background: var(--fh-surface);
+  border-bottom: 3px solid var(--fh-ink);
+}
+
+/* Reads as the heading it replaces until you put a caret in it. */
+.routeTitle {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  border-radius: 0;
+  font-family: var(--fh-font-sans);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--fh-ink);
+  caret-color: var(--fh-accent);
+}
+
+.headMeta {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+  margin-top: 3px;
+}
+
+.pointActions {
+  display: flex;
+}
+
+.pointAction {
+  flex: 1;
+  text-align: center;
+  padding: 11px 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+}
+
+.removePoint {
+  color: var(--fh-danger);
+}
+
+.addStop {
+  border-left: 1px solid var(--fh-border-soft);
+  color: var(--fh-ink);
+}
+
+.timeRow {
+  display: flex;
+  align-items: center;
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--fh-border-soft);
+}
+
+.timeLabel {
+  flex: 1;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.timeValue {
+  font-family: var(--fh-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--fh-border);
+}
+
+.stepperKey {
+  width: 30px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: center;
+  padding: 5px 0;
+  font-family: var(--fh-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fh-ink);
+  cursor: pointer;
+}
+
+.stepperKey:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stepperMinus {
+  border-right: 1px solid var(--fh-border);
+}
+
+.stepperPlus {
+  border-left: 1px solid var(--fh-border);
+}
+
+.stepperValue {
+  width: 52px;
+  text-align: center;
+  font-family: var(--fh-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.eta {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: var(--fh-ink);
+}
+
+.etaLabel {
+  flex: 1;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--fh-ink-on-muted);
+}
+
+.etaValue {
+  font-family: var(--fh-font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fh-accent);
+}
+
+.deleteRoute {
+  display: block;
+  margin: 14px 16px 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--fh-danger);
+  text-align: left;
+}
+
+/* ── 06d · ubicar punto ─────────────────────────────────────────────────── */
+
+.addressSuggestions {
+  border: 1px solid var(--fh-border);
+  border-top: none;
+  background: var(--fh-surface);
+}
+
+.addressSuggestion {
+  display: block;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  border-top: 1px solid var(--fh-border-soft);
+  background: transparent;
+  padding: 11px 12px;
+  color: var(--fh-ink);
+  font-family: var(--fh-font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+}
+
+.addressSuggestion:first-child {
+  border-top: none;
+}
+
+.addressSuggestionState,
+.addressSuggestionError {
+  padding: 11px 12px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  line-height: 1.5;
+}
+
+.addressSuggestionState {
+  color: var(--fh-muted);
+}
+
+.addressSuggestionError {
+  color: var(--fh-danger);
+}
+
+.addressAttribution {
+  display: block;
+  border-top: 1px solid var(--fh-border-soft);
+  padding: 7px 12px;
+  color: var(--fh-muted);
+  font-family: var(--fh-font-mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  text-align: right;
+  text-decoration: none;
+}
+
+.pointNote {
+  margin: 14px 16px 0;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  line-height: 1.7;
+  color: var(--fh-muted);
+}

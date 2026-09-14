@@ -1,0 +1,224 @@
+/* 07 · la lista de usuarios y 07b · el código de alta. */
+
+.action {
+  font-weight: 600;
+}
+
+.closer {
+  display: flex;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 16px;
+}
+
+/* Tone as a colour: the rail down the left of a row. */
+.rail {
+  width: 3px;
+  height: 38px;
+  flex: none;
+}
+
+.rowBody {
+  flex: 1;
+}
+
+.rowTop {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--fh-ink);
+}
+
+.role {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.rowDetail {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+  margin-top: 3px;
+}
+
+.count {
+  text-align: right;
+}
+
+.countValue {
+  font-family: var(--fh-font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.countLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.held {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #fff;
+  background: var(--fh-danger);
+  padding: 4px 7px;
+}
+
+.list {
+  background: var(--fh-surface);
+}
+
+/* ── 07b · código de alta ───────────────────────────────────────────────── */
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  cursor: pointer;
+}
+
+.tick {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.optionName {
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: var(--fh-ink);
+}
+
+.optionDescription {
+  font-size: 12px;
+  color: var(--fh-muted);
+  margin-top: 2px;
+}
+
+.pending {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+}
+
+.pendingCode {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--fh-ink);
+}
+
+.pendingScope {
+  flex: 1;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.pendingTtl {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.revoke {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--fh-danger);
+  cursor: pointer;
+}
+
+.codePanel {
+  background: var(--fh-ink);
+  padding: 20px 16px 22px;
+}
+
+.onInk {
+  color: var(--fh-ink-on-muted);
+}
+
+.digits {
+  display: flex;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.digit {
+  flex: 1;
+  height: 56px;
+  border: 1.5px solid var(--fh-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fh-font-mono);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--fh-accent);
+}
+
+.expiry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.2px;
+}
+
+.expiryLeft {
+  color: var(--fh-warn-bright);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.codeActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 0;
+}
+
+.pendingList {
+  margin: 8px 16px 0;
+  font-family: var(--fh-font-mono);
+}
+
+/* The honest word for a company whose only live key is the one on offer. */
+.pendingEmpty {
+  padding: 14px 16px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+}

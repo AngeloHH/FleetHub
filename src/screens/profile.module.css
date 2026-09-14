@@ -1,0 +1,440 @@
+/* 05 · el perfil y 05b · los datos personales. */
+
+/* Tappable row: title, optional value, chevron. */
+.link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 12px;
+}
+
+.linkTitle {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.linkValue {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  color: var(--fh-muted);
+}
+
+.stat {
+  padding: 14px 16px;
+}
+
+.statLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+}
+
+.statValue {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.statUnit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fh-muted);
+}
+
+/* Uppercase monospace caption, in the two sizes these screens use it. */
+.note {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.fieldLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+}
+
+/* ── 05 · perfil ────────────────────────────────────────────────────────── */
+
+.hold {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  background: var(--fh-danger-soft);
+  border-bottom: 1.5px solid var(--fh-danger);
+}
+
+.holdTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fh-ink);
+}
+
+/* Small dark action that lives inside a banner. */
+.inkAction {
+  height: 34px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 0;
+  background: var(--fh-ink);
+  color: var(--fh-ink-on);
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+}
+
+.head {
+  display: flex;
+  border-bottom: 3px solid var(--fh-ink);
+  background: var(--fh-surface);
+}
+
+.mugshot {
+  width: 96px;
+  background: var(--fh-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 0;
+}
+
+.mugshotId {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-ink-on-muted);
+}
+
+.identity {
+  flex: 1;
+  padding: 14px 16px;
+}
+
+.name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--fh-ink);
+  letter-spacing: -0.2px;
+  text-transform: uppercase;
+}
+
+.title {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+  margin-top: 3px;
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.permission {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 4px 8px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: var(--fh-surface);
+  border-bottom: 1px solid var(--fh-border);
+}
+
+.pending {
+  margin: 14px 16px 0;
+  border: 1.5px solid var(--fh-warn);
+  background: var(--fh-warn-soft);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+}
+
+.pendingTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fh-ink);
+}
+
+
+.actions {
+  margin: 18px 16px 0;
+  display: flex;
+  gap: 12px;
+}
+
+.administer {
+  flex: 1;
+  width: auto;
+  height: 48px;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.build {
+  margin: 12px 16px 0;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+}
+
+/* ── 05b · datos personales ─────────────────────────────────────────────── */
+
+.row {
+  padding: 10px 12px;
+}
+
+.rowValue {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+}
+
+.rowInput {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: var(--fh-ink);
+  caret-color: var(--fh-accent);
+}
+
+.rowError {
+  margin-top: 5px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-danger);
+}
+
+.pickerRow {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pickerValue {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fh-ink);
+}
+
+.locked {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+}
+
+.lockedValue {
+  color: var(--fh-ink);
+  margin-top: 3px;
+}
+
+.roleOptionName {
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.roleOptionDescription {
+  font-size: 12px;
+  color: var(--fh-muted);
+  margin-top: 2px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--fh-surface);
+  border-bottom: 3px solid var(--fh-ink);
+}
+
+.cardPhoto {
+  width: 64px;
+  height: 64px;
+  background: var(--fh-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.cardActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.photoAction {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.photoChange {
+  color: var(--fh-ink-on);
+  background: var(--fh-ink);
+}
+
+.photoRemove {
+  color: var(--fh-ink);
+  border: 1px solid var(--fh-border);
+}
+
+.dial {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--fh-font-mono);
+  font-size: 13px;
+  color: var(--fh-muted);
+}
+
+.dialCode {
+  white-space: nowrap;
+}
+
+.password {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.passwordName {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.suspend {
+  margin: 18px 16px 20px;
+  width: auto;
+  height: 48px;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+}
+
+/* ── 05c · acceso de soporte ────────────────────────────────────────────── */
+
+.supportState {
+  margin: 14px 16px 0;
+  border: 1.5px solid var(--fh-border);
+  background: var(--fh-surface);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.supportState.open {
+  border-color: var(--fh-warn);
+  background: var(--fh-warn-soft);
+}
+
+.supportCompany {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fh-ink);
+}
+
+.supportLeft {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  color: var(--fh-muted);
+}
+
+.supportLeft.live { color: var(--fh-warn); }
+
+.supportKey {
+  margin: 14px 16px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.supportField {
+  flex: 1;
+  height: 48px;
+  border: 1.5px solid var(--fh-border);
+  background: var(--fh-surface);
+  padding: 0 12px;
+  font-family: var(--fh-font-mono);
+  font-size: 16px;
+  letter-spacing: 4px;
+  color: var(--fh-ink);
+  text-transform: uppercase;
+}
+
+.supportField::placeholder {
+  color: var(--fh-muted-soft);
+  letter-spacing: 3px;
+}
+
+.supportError {
+  margin: 10px 16px 0;
+  border: 1px solid var(--fh-danger);
+  background: var(--fh-danger-soft);
+  padding: 9px 11px;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--fh-danger);
+}
+
+.supportNote {
+  margin: 16px 16px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fh-muted-deep);
+}

@@ -1,0 +1,1110 @@
+[
+ {
+  "url": "/api/health",
+  "request": {
+   "method": "GET | HEAD",
+   "authentication": false,
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "service": "fleethub-api",
+    "environment": "development | deploy-preview | production",
+    "release": "identificador del despliegue",
+    "storeVersion": "versión del almacén",
+    "at": "fecha ISO"
+   },
+   "503": "STORE_UNAVAILABLE · el almacén no se pudo leer"
+  }
+ },
+ {
+  "url": "/api/companies",
+  "request": {
+   "method": "POST",
+   "authentication": false,
+   "body": {}
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "code": "código hexadecimal de 6 caracteres",
+    "token": "TokenRecord INVITE de nivel ADMINISTRADOR"
+   },
+   "429": "RATE_LIMITED"
+  }
+ },
+ {
+  "url": "/api/sessions/current",
+  "request": {
+   "method": "DELETE",
+   "authentication": "Bearer token",
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true
+   }
+  }
+ },
+ {
+  "url": "/api/registrations",
+  "request": {
+   "method": "POST",
+   "authentication": false,
+   "body": {
+    "fullName": "Nombre Apellido",
+    "email": "usuario@dominio.com",
+    "phoneCode": "+52",
+    "phone": "5512345678",
+    "language": "es | en",
+    "password": "contraseña",
+    "code": "invitación obligatoria; /api/companies entrega la del primer administrador",
+    "registrationToken": "credencial temporal devuelta al consumir el token REGISTER"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "token": "token-de-sesión",
+    "userId": "UUID",
+    "user": "User público"
+   },
+   "400": "REGISTRATION_NOT_VALID | INVITE_NOT_VALID | MISSING_NAME | INVALID_EMAIL | INVALID_PHONE_CODE | INVALID_PHONE | INVALID_LANGUAGE | INVALID_ROLE | WEAK_PASSWORD",
+   "409": "EMAIL_TAKEN | PHONE_TAKEN"
+  }
+ },
+ {
+  "url": "/api/users/password",
+  "request": {
+   "method": "GET",
+   "authentication": false,
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "rules": {
+     "min-length": "/.{8,}/su",
+     "uppercase": "/\\p{Lu}/u",
+     "digit": "/\\p{Nd}/u",
+     "only-digits": "/^\\p{Nd}+$/u"
+    },
+    "reject": [
+     "only-digits"
+    ]
+   }
+  }
+ },
+ {
+  "url": "/api/users/password",
+  "request": {
+   "method": "POST",
+   "authentication": false,
+   "body": {
+    "password": "contraseña que se desea comprobar"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "failed": [
+     "nombre-de-regla"
+    ]
+   }
+  }
+ },
+ {
+  "url": "/api/tokens",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; requiere usuario.editar",
+   "query": {
+    "code": "opcional",
+    "purpose": "opcional: INVITE | REGISTER | SIGN_IN | PASSWORD_RESET | SESSION",
+    "live": "opcional: true | false"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "token": "TokenRecord cuando se consulta code",
+    "tokens": "TokenRecord[] cuando se lista"
+   },
+   "400": "UNKNOWN_PURPOSE",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "UNKNOWN"
+  }
+ },
+ {
+  "url": "/api/tokens",
+  "request": {
+   "method": "POST",
+   "authentication": "Según la acción; INVITE y revoke requieren administrador",
+   "body": {
+    "action": "create | verify | spend | revoke",
+    "purpose": "INVITE | REGISTER | SIGN_IN | PASSWORD_RESET | SESSION",
+    "codePurpose": "SIGN_IN | PASSWORD_RESET cuando se crea sesión con código",
+    "email": "alternativa de identidad",
+    "phone": "alternativa de identidad",
+    "password": "para crear sesión",
+    "code": "código",
+    "addressee": "destinatario de códigos dirigidos",
+    "role": "VISITANTE | OPERADOR | ADMINISTRADOR para INVITE",
+    "tier": "alternativa numérica interna al role"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "code": "token de sesión o invitación; los OTP sólo aparecen con el modo inseguro de desarrollo",
+    "token": "TokenRecord o datos públicos de sesión",
+    "name": "nombre del usuario cuando se solicita SIGN_IN o PASSWORD_RESET",
+    "registrationToken": "sólo al consumir REGISTER; credencial temporal para /api/registrations"
+   },
+   "400": "UNKNOWN_ACTION | UNKNOWN_PURPOSE | WRONG_PURPOSE | INVALID_TIER | INVALID_FORMAT | INVALID_REQUESTED_CODE | ADDRESSEE_REQUIRED",
+   "401": "UNAUTHORIZED | INVALID_CODE | INVALID_CREDENTIALS",
+   "403": "FORBIDDEN | ACCOUNT_SUSPENDED",
+   "404": "UNKNOWN | ACCOUNT_NOT_FOUND",
+   "409": "CODE_TAKEN | USED | REVOKED",
+   "410": "EXPIRED | BURNED",
+   "429": "RATE_LIMITED",
+   "502": "CODE_DELIVERY_FAILED",
+   "503": "CODE_DELIVERY_NOT_CONFIGURED"
+  }
+ },
+ {
+  "url": "/api/users",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; requiere ver",
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "users": "User[] públicos; incluyen createdAt, updatedAt y passwordChangedAt, pero nunca password"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN"
+  }
+ },
+ {
+  "url": "/api/users/:userId",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; cuenta propia o usuario.editar",
+   "pathParams": {
+    "userId": "UUID"
+   },
+   "body": {
+    "fullName": "opcional",
+    "email": "opcional",
+    "phoneCode": "opcional",
+    "phone": "opcional",
+    "language": "es | en; opcional",
+    "role": "sólo administrador",
+    "title": "sólo administrador"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "user": "User actualizado"
+   },
+   "400": "errores de validación",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "USER_NOT_FOUND",
+   "409": "EMAIL_TAKEN | PHONE_TAKEN"
+  }
+ },
+ {
+  "url": "/api/users/:userId",
+  "request": {
+   "method": "DELETE",
+   "authentication": "Bearer token; requiere usuario.editar y no permite eliminar la cuenta activa",
+   "pathParams": {
+    "userId": "UUID"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "userId": "UUID eliminado; el historial conserva este valor"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "USER_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/users/:userId/password",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; solamente el propio usuario",
+   "pathParams": {
+    "userId": "UUID"
+   },
+   "body": {
+    "current": "obligatoria salvo sesión PASSWORD_RESET",
+    "password": "contraseña nueva"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "user": "User público actualizado; passwordChangedAt cambia únicamente aquí"
+   },
+   "400": "WEAK_PASSWORD",
+   "401": "UNAUTHORIZED | INVALID_CREDENTIALS",
+   "403": "FORBIDDEN",
+   "409": "SAME_PASSWORD"
+  }
+ },
+ {
+  "url": "/api/users/:userId/suspension",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; cuenta propia o usuario.suspender",
+   "pathParams": {
+    "userId": "UUID"
+   },
+   "body": {
+    "suspension": "self | admin | null"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "user": "User actualizado"
+   },
+   "400": "INVALID_SUSPENSION",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "USER_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/geocoding/suggestions",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; requiere ubicacion.editar",
+   "query": {
+    "q": "texto parcial de al menos 3 caracteres",
+    "language": "código ISO de dos letras; opcional"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "suggestions": [
+     {
+      "address": "dirección normalizada",
+      "latitude": "-90..90",
+      "longitude": "-180..180"
+     }
+    ]
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "502": "GEOCODING_UNAVAILABLE",
+   "503": "GEOCODING_NOT_CONFIGURED"
+  }
+ },
+ {
+  "url": "/api/locations",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; administrador obtiene todas, operador obtiene todas las activas para poder asignar vehículos y visitante sólo las activas que tenga asignadas",
+   "query": {
+    "limit": "1..100; por defecto 50",
+    "cursor": "id de la última ubicación recibida"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "locations": "Location[]; las rutas incluyen geometry vial, durationSeconds y etaSeconds",
+    "nextCursor": "string | null"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN"
+  }
+ },
+ {
+  "url": "/api/locations",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere ubicacion.editar",
+   "body": {
+    "name": "nombre",
+    "active": "boolean; opcional, true por defecto",
+    "points": "Point[] opcional; permite guardar el formulario completo de manera atómica"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "location": "Location creada sin puntos y asignada al administrador creador"
+   },
+   "400": "MISSING_LOCATION_NAME | INVALID_ACTIVE",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN"
+  }
+ },
+ {
+  "url": "/api/locations/route-estimate",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere ubicacion.editar",
+   "body": {
+    "points": "dos o más coordenadas de la ruta",
+    "trafficMarginPercent": "entero 0..100"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "estimate": "distancia, duración, ETA y geometry vial [longitude, latitude][]"
+   },
+   "400": "ROUTE_NEEDS_TWO_POINTS | INVALID_POINT_POSITION | INVALID_TRAFFIC_MARGIN",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "503": "ROUTING_NOT_CONFIGURED | ROUTING_UNAVAILABLE"
+  }
+ },
+ {
+  "url": "/api/locations/:locationId",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere ubicacion.editar",
+   "pathParams": {
+    "locationId": "UUID de la location"
+   },
+   "body": {
+    "name": "opcional",
+    "active": "boolean; opcional",
+    "points": "Point[] opcional; reemplaza y reordena los puntos de manera atómica"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "location": "Location actualizada"
+   },
+   "400": "MISSING_LOCATION_NAME | INVALID_ACTIVE",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "LOCATION_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/locations/:locationId/points",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere ubicacion.editar",
+   "pathParams": {
+    "locationId": "UUID de la location"
+   },
+   "body": {
+    "address": "dirección obligatoria",
+    "reference": "referencia opcional",
+    "latitude": "número entre -90 y 90; obligatorio",
+    "longitude": "número entre -180 y 180; obligatorio"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "point": "Point creado con UUID",
+    "location": "Location completa; isRoute pasa a true cuando contiene más de un punto"
+   },
+   "400": "MISSING_POINT_ADDRESS | INVALID_POINT_POSITION",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "LOCATION_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/locations/:locationId/points/:pointId",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere ubicacion.editar",
+   "pathParams": {
+    "locationId": "UUID de la location",
+    "pointId": "UUID"
+   },
+   "body": {
+    "address": "opcional; no puede quedar vacío",
+    "reference": "opcional",
+    "latitude": "-90..90; enviar junto con longitude para cambiar la posición",
+    "longitude": "-180..180; enviar junto con latitude para cambiar la posición"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "point": "Point actualizado",
+    "location": "Location completa actualizada"
+   },
+   "400": "MISSING_POINT_ADDRESS | INVALID_POINT_POSITION",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "LOCATION_NOT_FOUND | POINT_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/locations/:locationId/points/:pointId",
+  "request": {
+   "method": "DELETE",
+   "authentication": "Bearer token; requiere ubicacion.editar",
+   "pathParams": {
+    "locationId": "UUID de la location",
+    "pointId": "UUID"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "location": "Location completa después de quitar el punto"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "LOCATION_NOT_FOUND | POINT_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/locations/:locationId",
+  "request": {
+   "method": "DELETE",
+   "authentication": "Bearer token; requiere ubicacion.editar",
+   "pathParams": {
+    "locationId": "UUID de la location"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "locationId": "UUID de la location eliminada"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "LOCATION_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/users/:userId/locations",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; cuenta propia o usuario.editar",
+   "pathParams": {
+    "userId": "UUID"
+   },
+   "query": {
+    "limit": "1..100",
+    "cursor": "opcional"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "locations": "Location[] asignadas",
+    "nextCursor": "string | null"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "USER_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/users/:userId/locations",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere usuario.editar",
+   "pathParams": {
+    "userId": "UUID"
+   },
+   "body": {
+    "locationId": "UUID de la location"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "assignment": {
+     "id": "UUID-del-usuario:UUID-de-la-location",
+     "userId": "UUID",
+     "locationId": "UUID",
+     "assignedAt": "ISO-8601",
+     "assignedBy": "UUID"
+    }
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "USER_NOT_FOUND | LOCATION_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/users/:userId/locations/:locationId",
+  "request": {
+   "method": "DELETE",
+   "authentication": "Bearer token; requiere usuario.editar",
+   "pathParams": {
+    "userId": "UUID",
+    "locationId": "UUID de la location"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "userId": "UUID",
+    "locationId": "UUID"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "USER_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/vehicles/states",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; requiere ver",
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "states": [
+     {
+      "id": 1,
+      "name": "EN RUTA",
+      "note": "EN CAMINO",
+      "tone": "ok"
+     },
+     {
+      "id": 2,
+      "name": "CON DEPÓSITO",
+      "note": "CON ANTICIPO",
+      "tone": "warn"
+     },
+     {
+      "id": 3,
+      "name": "EN SERVICIO",
+      "note": "TALLER",
+      "tone": "warn"
+     },
+     {
+      "id": 0,
+      "name": "NO ENCONTRADO",
+      "note": "SIN LOCALIZAR",
+      "tone": "danger"
+     },
+     {
+      "id": 4,
+      "name": "VENDIDO",
+      "note": "CIERRA EL EXPEDIENTE",
+      "tone": "muted"
+     }
+    ]
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN"
+  }
+ },
+ {
+  "url": "/api/vehicles/location-status",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; requiere ver. Administrador recibe toda la compañía; operador recibe los vehículos de sus locations y todos los que aún no tienen location; visitante sólo los visibles",
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "vehicles": "Array<{ vin: string, assigned: boolean }>"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN"
+  }
+ },
+ {
+  "url": "/api/vehicles",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; vehicles contiene sólo la flota que comparte una location activa con el usuario",
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "companyId": "UUID de la compañía de la sesión; permite reemplazar su caché sin mezclar otras sesiones",
+    "vehicles": "Vehicle[] visibles; cada ruta asignada incluye routeTracking con geometry, etaSeconds y routeStartedAt",
+    "pendingVehicles": "Vehicle[] sin location: todos para administradores y operadores, ninguno para visitantes; aparecen en FLOTA y Alertas pero nunca se dibujan en el mapa"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN"
+  }
+ },
+ {
+  "url": "/api/vehicles",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere escanear",
+   "body": {
+    "vin": "VIN de 17 caracteres; única identidad del vehículo"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "created": "true si nació en esta petición; false si ya existía",
+    "manualRequired": "true cuando NHTSA falló o no devolvió año, marca y modelo",
+    "decodeError": "null | DECODER_UNAVAILABLE | INCOMPLETE_DECODE; explica por qué el frontend debe completar la ficha manualmente",
+    "vehicle": "Vehicle; decodeStatus es decoded si respondió NHTSA o manual-required si el frontend debe mostrar el formulario"
+   },
+   "400": "INVALID_VIN",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "VEHICLE_NOT_FOUND si ya existe pero el usuario no puede verlo"
+  }
+ },
+ {
+  "url": "/api/vehicles/:vin",
+  "request": {
+   "method": "DELETE",
+   "authentication": "Bearer token; requiere unidad.remover (sólo administrador)",
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "vin": "string"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "VEHICLE_NOT_FOUND"
+  },
+  "notes": "Saca la unidad de la flota de esta compañía: se van su estado, sus escaneos, su rastro de GPS, sus alertas descartadas y sus fotografías, y los archivos de las fotos se borran del almacenamiento. No borra el vehículo para otras compañías — la clave es (compañía, VIN). El mismo VIN puede volver a escanearse después y entra como nuevo."
+ },
+ {
+  "url": "/api/vehicles/:vin/details",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; requiere ver y que el vehículo comparta una location activa con el usuario, o que esté sin location y el usuario pueda modificar unidades",
+   "pathParams": {
+    "vin": "VIN de 17 caracteres"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "vehicle": "Vehicle con la información decodificada o capturada manualmente"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "VEHICLE_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/vehicles/:vin/details",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere unidad.modificar y que el vehículo comparta una location activa con el usuario, o que aún no tenga location",
+   "pathParams": {
+    "vin": "VIN de 17 caracteres"
+   },
+   "body": {
+    "year": "año entero; obligatorio",
+    "make": "marca; obligatoria",
+    "model": "modelo; obligatorio",
+    "trim": "versión; opcional",
+    "body": "carrocería; opcional",
+    "engine": "motor; opcional"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "vehicle": "Vehicle con decodeStatus manual y decodedAt null"
+   },
+   "400": "INVALID_YEAR | MISSING_VEHICLE_DETAILS",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "VEHICLE_NOT_FOUND",
+   "409": "MANUAL_DETAILS_NOT_REQUIRED"
+  }
+ },
+ {
+  "url": "/api/vehicles/:vin/state",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere unidad.modificar y que el vehículo comparta una location activa con el usuario, o que aún no tenga location",
+   "pathParams": {
+    "vin": "VIN de 17 caracteres"
+   },
+   "body": {
+    "state": "entero fijo: 0..4, o null para retirar la condición; 0 significa NO ENCONTRADO"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "changed": "boolean",
+    "vehicle": "Vehicle actualizado"
+   },
+   "400": "INVALID_STATE",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "VEHICLE_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/vehicles/:vin/route-start",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere unidad.modificar, una ruta asignada y que el vehículo sea visible mediante esa location",
+   "pathParams": {
+    "vin": "VIN de 17 caracteres"
+   },
+   "body": {
+    "routeStartedAt": "fecha/hora ISO 8601, o null para dejar la ruta sin iniciar"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "assignment": "asignación con routeStartedAt normalizado a UTC",
+    "routeTracking": "locationId, routeStartedAt, etaSeconds y geometry",
+    "routingError": "null o error del proveedor si una ruta antigua no pudo recuperar su geometry"
+   },
+   "400": "INVALID_ROUTE_STARTED_AT",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "VEHICLE_NOT_FOUND",
+   "409": "VEHICLE_LOCATION_NOT_FOUND | ROUTE_START_NOT_APPLICABLE"
+  }
+ },
+ {
+  "url": "/api/vehicles/:vin/positions",
+  "request": {
+   "method": "GET | POST",
+   "authentication": "Bearer token; GET requiere ver y POST requiere unidad.modificar; el vehículo debe compartir una location activa con el usuario o estar sin location para un operador/administrador",
+   "pathParams": {
+    "vin": "VIN de 17 caracteres"
+   },
+   "body": {
+    "GET": null,
+    "POST": {
+     "latitude": "-90..90; obtenida por el dispositivo",
+     "longitude": "-180..180; obtenida por el dispositivo",
+     "accuracy": "número mayor o igual a cero; opcional"
+    }
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "position": "GET devuelve la última VehiclePosition o null; POST devuelve la recién registrada",
+    "vehicle": "sólo POST; Vehicle con su última position"
+   },
+   "400": "INVALID_POSITION",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "VEHICLE_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/vehicles/:vin/locations",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; el vehículo debe compartir una location activa con el usuario o estar sin location para un operador/administrador",
+   "pathParams": {
+    "vin": "VIN de 17 caracteres"
+   },
+   "query": {
+    "limit": "1..100",
+    "cursor": "opcional"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "locations": "Location[] asignadas; una ruta incluye routeStartedAt de su asignación",
+    "nextCursor": "string | null"
+   },
+   "401": "UNAUTHORIZED",
+   "404": "VEHICLE_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/vehicles/:vin/locations",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere unidad.modificar. Cualquier operador o administrador puede asignar un vehículo sin location; uno ya asignado puede reasignarse si es visible para el usuario. La location de destino debe estar activa",
+   "pathParams": {
+    "vin": "VIN de 17 caracteres"
+   },
+   "body": {
+    "locationId": "UUID de la location activa",
+    "replace": "boolean; true reemplaza cualquier asignación anterior y es el valor usado por el frontend"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "assignment": "VehicleLocationAssignment"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "VEHICLE_NOT_FOUND | LOCATION_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/vehicles/:vin/locations/:locationId",
+  "request": {
+   "method": "DELETE",
+   "authentication": "Bearer token; requiere ubicacion.editar y vehículo visible",
+   "pathParams": {
+    "vin": "VIN de 17 caracteres",
+    "locationId": "UUID de la location"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "vin": "VIN",
+    "locationId": "UUID"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "VEHICLE_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/vehicles/:vin/events",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; requiere unidad.modificar y que el vehículo comparta una location activa con el usuario, o que aún no tenga location",
+   "pathParams": {
+    "vin": "VIN de 17 caracteres"
+   },
+   "body": {
+    "kind": "location | attachments; los estados usan /state",
+    "locationId": "obligatorio para location y asignado al usuario",
+    "note": "opcional",
+    "photos": "string[]; opcional"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "event": "VehicleEvent con vin y userId UUID"
+   },
+   "400": "INVALID_EVENT_KIND",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "VEHICLE_NOT_FOUND | LOCATION_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/events",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; requiere ver",
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "events": "VehicleEvent[] solamente de vehículos visibles"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN"
+  }
+ },
+ {
+  "url": "/api/vehicles/:vin/photos",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; el VIN debe corresponder a un vehículo visible",
+   "pathParams": {
+    "vin": "VIN de 17 caracteres"
+   },
+   "contentType": "image/jpeg | image/png | image/webp",
+   "body": "archivo binario real; máximo 8 MiB, 12000 px por lado y 40 MP"
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "photo": {
+     "id": "F-ABC123",
+     "vin": "VIN",
+     "uploadedBy": "UUID",
+     "createdAt": "fecha de recepción ISO-8601"
+    }
+   },
+   "400": "INVALID_PHOTO",
+   "401": "UNAUTHORIZED",
+   "404": "VEHICLE_NOT_FOUND",
+   "413": "PAYLOAD_TOO_LARGE",
+   "415": "UNSUPPORTED_PHOTO"
+  }
+ },
+ {
+  "url": "/api/photos/:id",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; la fotografía debe pertenecer a un vehículo visible",
+   "pathParams": {
+    "id": "F-ABC123"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "contentType": "tipo original admitido",
+    "body": "archivo binario"
+   },
+   "401": "UNAUTHORIZED",
+   "404": "NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/dismissals",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token; requiere ver",
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "dismissals": "AlertDismissal[] sólo de vehículos visibles"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN"
+  }
+ },
+ {
+  "url": "/api/dismissals",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token; el vehículo debe ser visible",
+   "body": {
+    "vin": "VIN; también puede deducirse del alertId",
+    "alertId": "VIN·detenida",
+    "title": "título mostrado"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "dismissal": {
+     "id": "DIS-...",
+     "vin": "VIN",
+     "alertId": "...",
+     "title": "...",
+     "createdAt": "ISO-8601",
+     "userId": "UUID"
+    }
+   },
+   "400": "MISSING_ALERT",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "VEHICLE_NOT_FOUND"
+  }
+ },
+ {
+  "url": "/api/grants",
+  "request": {
+   "method": "GET",
+   "authentication": "Bearer token",
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "grants": "SupportGrant[] visibles para la cuenta",
+    "open": "acceso activo de la cuenta de soporte o null"
+   },
+   "401": "UNAUTHORIZED"
+  }
+ },
+ {
+  "url": "/api/grants",
+  "request": {
+   "method": "POST",
+   "authentication": "Bearer token de una cuenta configurada en FLEETHUB_STAFF_EMAILS",
+   "body": {
+    "code": "llave de invitación de nivel SUPPORT"
+   }
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "grant": "acceso temporal de ocho horas a la compañía de la llave"
+   },
+   "400": "NOT_A_SUPPORT_KEY",
+   "401": "UNAUTHORIZED",
+   "403": "NOT_STAFF",
+   "404": "UNKNOWN",
+   "409": "ALREADY_OPEN | llave gastada o vencida"
+  }
+ },
+ {
+  "url": "/api/grants/:id",
+  "request": {
+   "method": "DELETE",
+   "authentication": "Bearer token del soporte titular o un administrador de la compañía",
+   "pathParams": {
+    "id": "UUID del acceso"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "grant": "acceso cerrado, conservado para auditoría"
+   },
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "GRANT_NOT_FOUND",
+   "409": "ALREADY_ENDED"
+  }
+ },
+ {
+  "url": "/api/companies/current",
+  "request": {
+   "method": "DELETE",
+   "authentication": "Bearer token de un administrador de su propia compañía",
+   "query": {
+    "confirm": "UUID exacto de la compañía"
+   },
+   "body": null
+  },
+  "response": {
+   "200": {
+    "ok": true,
+    "removed": "conteo por tabla; elimina también fotos y sesiones"
+   },
+   "400": "CONFIRMATION_REQUIRED",
+   "401": "UNAUTHORIZED",
+   "403": "FORBIDDEN",
+   "404": "UNKNOWN_COMPANY"
+  }
+ }
+]

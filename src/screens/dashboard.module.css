@@ -1,0 +1,530 @@
+/* 00 · el mapa con la ficha de la unidad, y 00b · modificar unidad. */
+
+/* Dark bar showing the unit's VIN. */
+.vin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--fh-ink);
+}
+
+.vinLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--fh-ink-on-muted);
+}
+
+.vinValue {
+  font-family: var(--fh-font-mono);
+  font-weight: 600;
+  color: var(--fh-ink-on);
+}
+
+.metric {
+  padding: 14px 16px;
+}
+
+.metricLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+}
+
+.metricValue {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.metricUnit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fh-muted);
+}
+
+/* ── 00 · el mapa ───────────────────────────────────────────────────────── */
+
+/* The map occupies the usable viewport: below the strip and above the tabs. */
+.map {
+  position: absolute;
+  top: var(--fh-content-top);
+  left: 0;
+  right: 0;
+  bottom: var(--fh-nav-height);
+  background: var(--fh-surface-alt);
+}
+
+.recenter {
+  position: absolute;
+  right: 14px;
+  top: 18px;
+  background: var(--fh-ink);
+  color: var(--fh-ink-on);
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  padding: 9px 11px;
+  cursor: pointer;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ── la ficha de la unidad ──────────────────────────────────────────────── */
+
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--fh-nav-height);
+  background: var(--fh-surface);
+  border-top: 3px solid var(--fh-ink);
+  overflow-y: auto;
+  z-index: 6;
+}
+
+.sheetHead {
+  display: flex;
+  border-bottom: 1px solid var(--fh-border);
+}
+
+/* The orange block the design gives the unit id is the close control. */
+.sheetClose {
+  background: var(--fh-accent);
+  color: #fff;
+  border: none;
+  border-radius: 0;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  align-self: stretch;
+}
+
+.sheetTitleCell {
+  padding: 10px 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sheetModel {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--fh-ink);
+  letter-spacing: -0.2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheetSpec {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+  margin-top: 2px;
+}
+
+.sheetStateCell {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+}
+
+.sheetState {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 5px 9px;
+  white-space: nowrap;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--fh-border);
+}
+
+.position {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--fh-border);
+}
+
+.positionLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+}
+
+.positionValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.sheetActions {
+  display: flex;
+  padding: 16px;
+  gap: 12px;
+}
+
+/* ── 00b · modificar unidad ─────────────────────────────────────────────── */
+
+.state {
+  width: 100%;
+  text-align: left;
+  border-radius: 0;
+  padding: 11px 12px;
+  cursor: pointer;
+}
+
+.stateName {
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.stateNote {
+  font-family: var(--fh-font-mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+
+.routeCode {
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  width: 38px;
+  flex: none;
+}
+
+.routeName {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--fh-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 11px 16px;
+  background: var(--fh-surface);
+  border: 0;
+  border-radius: 0;
+  border-bottom: 3px solid var(--fh-ink);
+  text-align: left;
+}
+
+.header:disabled {
+  opacity: 1;
+}
+
+.headerText {
+  flex: 1;
+  min-width: 0;
+}
+
+.headerModel {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--fh-ink);
+  text-transform: uppercase;
+}
+
+.headerSpec {
+  display: block;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+  margin-top: 2px;
+}
+
+.states {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 9px 16px 0;
+}
+
+.routeField {
+  margin: 8px 16px 0;
+}
+
+.saveProblem {
+  margin: 8px 16px 0;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  color: var(--fh-danger);
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  min-height: 49px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--fh-border-soft);
+}
+
+.detailRow:last-child {
+  border-bottom: 0;
+}
+
+.detailLabel {
+  width: 82px;
+  flex: none;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.detailInput {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  padding: 6px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fh-ink);
+  text-transform: uppercase;
+}
+
+.detailInput:focus {
+  outline: none;
+  border-color: var(--fh-accent);
+  background: var(--fh-bg);
+}
+
+.detailInputInvalid {
+  border-color: var(--fh-danger);
+  background: var(--fh-danger-soft);
+}
+
+.routeTrigger {
+  width: 100%;
+  border: 1px solid var(--fh-border);
+  border-radius: 0;
+  background: var(--fh-surface);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.routeTriggerText {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fh-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.place {
+  padding: 11px 12px;
+}
+
+.placeName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.placeCoords {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+  margin-top: 3px;
+}
+
+.routeStart {
+  padding: 10px 12px;
+}
+
+.routeStartInput {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  border: 1px solid var(--fh-border);
+  border-radius: 0;
+  background: var(--fh-surface);
+  color: var(--fh-ink);
+  padding: 0 10px;
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.routeStartInput:focus {
+  outline: none;
+  border-color: var(--fh-accent);
+}
+
+.routeStartInput:disabled {
+  color: var(--fh-muted);
+  background: var(--fh-surface-alt);
+}
+
+.photosHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 12px 16px 0;
+}
+
+.photos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px 16px 0;
+}
+
+.photo {
+  display: block;
+  width: 100%;
+  height: 72px;
+  object-fit: cover;
+  background: var(--fh-surface-alt);
+  border: 1px solid var(--fh-border);
+}
+
+.photoItem {
+  position: relative;
+  min-width: 0;
+  height: 72px;
+}
+
+.photoSelect {
+  display: block;
+  width: 100%;
+  height: 72px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.photoDelete {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 0;
+  background: var(--fh-ink);
+  color: var(--fh-ink-on);
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 28%);
+  cursor: pointer;
+}
+
+.photoAdd {
+  width: 100%;
+  height: 72px;
+  border: 1.5px dashed var(--fh-muted-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.photoAddWide {
+  grid-column: 1 / -1;
+}
+
+.photoAddLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.photosNote {
+  margin: 7px 16px 0;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.noteBox {
+  margin: 8px 16px 0;
+  border: 1px solid var(--fh-border);
+  background: var(--fh-surface);
+  padding: 9px 12px;
+}
+
+.note {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  line-height: 1.5;
+  color: var(--fh-ink);
+  caret-color: var(--fh-accent);
+}
+
+.closer {
+  display: flex;
+}
+
+/* Remover de la flota: al fondo del formulario, después de la nota. Hay que
+   bajar hasta aquí para llegar, que para algo irreversible es una virtud. */
+.removeBox {
+  padding: 28px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.removeNote {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  color: var(--ink-muted, #6b6f6a);
+  text-align: center;
+}

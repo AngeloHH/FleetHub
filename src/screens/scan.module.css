@@ -1,0 +1,299 @@
+/* 01 · el visor del VIN, 01b · la captura a mano y 02 · la confirmación. */
+
+/* The viewfinder is the only dark screen in the app. */
+.lens {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 42%, #2a2d27 0%, #161814 55%, #0d0e0c 100%);
+}
+
+.hintRow {
+  position: absolute;
+  top: 130px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 4;
+}
+
+.hint {
+  display: inline-block;
+  background: #1c1e1ad9;
+  color: var(--fh-ink-on);
+  font-family: var(--fh-font-mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  padding: 8px 14px;
+}
+
+.plate {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  top: 330px;
+  height: 120px;
+  z-index: 4;
+}
+
+/* focus state: quiet pulse on the frame edge */
+.plateEdge {
+  position: absolute;
+  inset: 0;
+  border: 1px solid #e8590c73;
+  /* The animation stays in the JSX: a module renames any keyframes it names
+     here, and fh-focus is declared once, globally, in index.css. */
+}
+
+.plateVin {
+  position: absolute;
+  inset: 18px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plateVinText {
+  font-family: var(--fh-font-mono);
+  font-size: 19px;
+  letter-spacing: 3px;
+  color: #e8e9e452;
+}
+
+.aim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 472px;
+  text-align: center;
+  z-index: 4;
+}
+
+.aimText {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--fh-muted);
+}
+
+.controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--fh-ink);
+  padding: 18px 24px 34px;
+  z-index: 5;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 72px;
+  cursor: pointer;
+}
+
+/* Outline used by the viewfinder's secondary controls. */
+.controlKey {
+  width: 46px;
+  height: 46px;
+  border: 1.5px solid #3d403a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controlLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+}
+
+.shutter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.shutterRing {
+  width: 78px;
+  height: 78px;
+  border: 3px solid var(--fh-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shutterKey {
+  width: 58px;
+  height: 58px;
+  background: var(--fh-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shutterLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-accent);
+}
+
+/* ── 02 · confirmación ──────────────────────────────────────────────────── */
+
+.specRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 14px;
+}
+
+.specLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+}
+
+.specValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fh-ink);
+}
+
+.manualSpecInput {
+  width: min(58%, 210px);
+  border: 0;
+  border-bottom: 1px solid var(--fh-border);
+  background: transparent;
+  color: var(--fh-ink);
+  font-family: var(--fh-font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 2px;
+  text-align: right;
+  text-transform: uppercase;
+  outline: none;
+}
+
+.manualSpecInput:focus {
+  border-bottom-color: var(--fh-accent);
+}
+
+.manualSpecInputInvalid,
+.manualSpecInputInvalid:focus {
+  border-bottom-color: var(--fh-danger);
+  color: var(--fh-danger);
+}
+
+.decodeProblem {
+  margin: 10px 16px 0;
+  color: var(--fh-danger);
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.cardHeader {
+  background: var(--fh-surface-alt);
+  padding: 9px 14px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--fh-muted-deep);
+}
+
+.readout {
+  margin: 16px;
+  background: var(--fh-ink);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.readoutLabel {
+  color: var(--fh-ink-on-muted);
+}
+
+.readoutVin {
+  font-family: var(--fh-font-mono);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--fh-ink-on);
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+.unitId {
+  font-family: var(--fh-font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fh-accent);
+}
+
+.group {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fh-ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 26px;
+  display: flex;
+  gap: 12px;
+}
+
+/* ── 01b · captura manual ───────────────────────────────────────────────── */
+
+.manual {
+  position: absolute;
+  top: 118px;
+  left: 0;
+  right: 0;
+  padding: 0 24px;
+}
+
+.manualTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--fh-ink);
+  letter-spacing: -0.2px;
+}
+
+.counter {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  color: var(--fh-muted);
+}
+
+/* El mundo detrás del marco: la cámara en vivo, a pantalla completa del visor. */
+.feed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}

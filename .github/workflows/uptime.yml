@@ -1,0 +1,101 @@
+# El monitor de disponibilidad.
+#
+# Cada diez minutos pregunta a /api/health y falla si no contesta, contesta
+# otra cosa, o tarda más de lo que debería. Vive aquí y no en un servicio
+# aparte por una razón concreta: un monitor que hay que contratar y configurar
+# a mano es un monitor que el día del despliegue nadie configuró. Éste viaja
+# con el repositorio y arranca en cuanto existe la variable HEALTH_URL.
+#
+# Configuración, en Settings del repositorio:
+#   · Variables → HEALTH_URL          la dirección pública del despliegue
+#   · Variables → HEALTH_URL_STAGING  la de preview, si se quiere vigilar
+#   · Secrets   → ALERT_WEBHOOK_URL   a dónde va el aviso (opcional)
+#   · Secrets   → ALERT_WEBHOOK_TOKEN si ese destino pide autorización
+#
+# Sin HEALTH_URL el trabajo termina sin hacer nada: no hay nada que vigilar
+# todavía y un rojo permanente entrena a la gente a ignorar los rojos.
+
+name: Disponibilidad
+
+on:
+  schedule:
+    # Cada diez minutos. GitHub no garantiza la puntualidad de un cron, así que
+    # el intervalo es un mínimo y no un reloj.
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Dirección a comprobar (por defecto, HEALTH_URL)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Producción
+        id: production
+        if: vars.HEALTH_URL != '' || inputs.target != ''
+        env:
+          HEALTH_URL: ${{ inputs.target || vars.HEALTH_URL }}
+          HEALTH_BUDGET_MS: ${{ vars.HEALTH_BUDGET_MS || '5000' }}
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+          ALERT_WEBHOOK_TOKEN: ${{ secrets.ALERT_WEBHOOK_TOKEN }}
+        run: node scripts/check-health.mjs
+
+      # Preview no despierta a nadie: se comprueba igual y su fallo no tumba
+      # el trabajo, porque un preview caído no es una incidencia.
+      - name: Preview
+        if: vars.HEALTH_URL_STAGING != ''
+        continue-on-error: true
+        env:
+          HEALTH_URL: ${{ vars.HEALTH_URL_STAGING }}
+          HEALTH_BUDGET_MS: ${{ vars.HEALTH_BUDGET_MS || '8000' }}
+        run: node scripts/check-health.mjs
+
+      - name: Sin dirección configurada
+        if: vars.HEALTH_URL == '' && inputs.target == ''
+        run: echo "HEALTH_URL sin configurar; no hay nada que vigilar todavía."
+
+      # El aviso que no depende de contratar nada: si producción falla, queda
+      # una incidencia abierta en el repositorio con la hora y el motivo.
+      - name: Abrir incidencia
+        if: failure() && steps.production.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'FleetHub no responde'
+            const open = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'disponibilidad',
+            })
+            const body = [
+              `La comprobación de disponibilidad falló el ${new Date().toISOString()}.`,
+              '',
+              `Ejecución: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              '',
+              'Pasos: `OPERATIONS.md` → «Cuando algo se cae».',
+            ].join('\n')
+            if (open.data.length) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: open.data[0].number, body,
+              })
+              return
+            }
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title, body, labels: ['disponibilidad'],
+            })

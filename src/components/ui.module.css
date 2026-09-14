@@ -1,0 +1,274 @@
+/* The blocks shared by every screen. Anything that depends on a prop stays in
+   the JSX; what is the same on every render lives here. */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  font-family: var(--fh-font-sans);
+  overflow: hidden;
+}
+
+/* The accent underscore in FLEETHUB_OPS and its like. */
+.underscore {
+  color: var(--fh-accent);
+}
+
+.strip {
+  position: absolute;
+  top: var(--fh-strip-top);
+  left: 0;
+  right: 0;
+  background: var(--fh-ink);
+  color: var(--fh-ink-on);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  font-family: var(--fh-font-mono);
+  z-index: 5;
+}
+
+.stripTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.meta {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.body,
+.bodyScroll {
+  position: absolute;
+  top: var(--fh-content-top);
+  left: 0;
+  right: 0;
+}
+
+/* Sin barra dibujada, pero alcanzable: en el teléfono de la galería el
+   contenido cabe por diseño y auto no enseña nada; en una pantalla más corta
+   que el diseño, hidden era contenido perdido. */
+.body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+.body::-webkit-scrollbar {
+  display: none;
+}
+
+.bodyScroll {
+  overflow-y: auto;
+}
+
+/* A button of its own brings the browser's defaults — Arial, grey, centred —
+   where the span it replaced simply inherited the strip's. */
+.back {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+}
+
+.sectionLabel {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--fh-muted);
+}
+
+.card {
+  border: 1px solid var(--fh-border);
+}
+
+/* ── buttons ───────────────────────────────────────────────────────────────
+   The variant comes after the base, so where both set a property the variant
+   is the one that lands. Anything a caller passes stays inline, which beats
+   both. */
+
+.btn {
+  width: 100%;
+  height: 54px;
+  font-family: var(--fh-font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.accent {
+  border: none;
+  background: var(--fh-accent);
+  color: #fff;
+}
+
+.inkOutline {
+  border: 2px solid var(--fh-ink);
+  background: var(--fh-surface);
+  color: var(--fh-ink);
+}
+
+.ink {
+  border: none;
+  background: var(--fh-ink);
+  color: var(--fh-ink-on);
+}
+
+.ghostDark {
+  border: 2px solid var(--fh-ink-border);
+  background: transparent;
+  color: var(--fh-ink-on);
+}
+
+.dangerOutline {
+  border: 2px solid var(--fh-danger);
+  background: transparent;
+  color: var(--fh-danger);
+}
+
+.disabled {
+  border: none;
+  background: var(--fh-border);
+  color: var(--fh-ink);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── toggle ─────────────────────────────────────────────────────────────── */
+
+.toggle {
+  width: 44px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  cursor: pointer;
+  flex: none;
+  transition: background 120ms;
+}
+
+.toggleOff {
+  /* Fuera de servicio: sigue diciendo el estado y deja de invitar al dedo. */
+  opacity: 0.5;
+  cursor: default;
+}
+
+.knob {
+  width: 18px;
+  height: 18px;
+  background: #fff;
+}
+
+/* ── footers and tab bars ──────────────────────────────────────────────── */
+
+.actionBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--fh-action-bar-height);
+  background: var(--fh-ink);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px 20px;
+}
+
+.navBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Its scan action rises above the bar, so the whole navigation layer must
+     stay above map overlays such as the selected-vehicle sheet. */
+  z-index: 10;
+  height: var(--fh-nav-height);
+  background: var(--fh-ink);
+  display: flex;
+  align-items: flex-start;
+  font-family: var(--fh-font-mono);
+}
+
+.navItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.navLabel {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: 18px;
+  min-width: 15px;
+  height: 15px;
+  background: var(--fh-danger);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The scan action is raised out of the bar rather than sitting in it. */
+.scanTab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  margin-top: -18px;
+}
+
+.scanKey {
+  width: 56px;
+  height: 56px;
+  background: var(--fh-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scanLabel {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: var(--fh-accent);
+  margin-top: 5px;
+}
+
+/* Offered to someone who may not scan: the bar keeps its five slots and the
+   raised key keeps its place, in the grey the bar uses for what is off. */
+.scanTabOff {
+  cursor: default;
+}
+
+.scanKeyOff {
+  background: var(--fh-ink-border);
+}
+
+.scanLabelOff {
+  color: var(--fh-muted);
+}

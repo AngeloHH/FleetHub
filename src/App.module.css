@@ -1,0 +1,147 @@
+/* The frame around the device: the canvas, the caption above each phone, the
+   note below it, and the switch between the app and the gallery. */
+
+.page {
+  min-height: 100vh;
+  background: var(--fh-canvas);
+  padding: 56px 40px 80px;
+  font-family: var(--fh-font-sans);
+}
+
+.header {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 40px;
+}
+
+.eyebrow {
+  font-family: var(--fh-font-mono);
+  font-size: 12px;
+  letter-spacing: 2.5px;
+  color: var(--fh-accent);
+}
+
+.title {
+  font-family: var(--fh-font-serif);
+  font-weight: 400;
+  font-size: 42px;
+  line-height: 1.1;
+  color: var(--fh-canvas-title);
+  margin: 10px 0 0;
+}
+
+.accent {
+  color: var(--fh-accent);
+}
+
+.blurb {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--fh-canvas-label);
+  margin: 12px 0 0;
+}
+
+.caption {
+  font-family: var(--fh-font-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--fh-canvas-label);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.address {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--fh-muted-deep);
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: var(--fh-device-width);
+}
+
+.gallery {
+  display: flex;
+  gap: 48px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  max-width: 1900px;
+  margin: 0 auto;
+}
+
+/* What the running app has to say for itself, under the phone. */
+.note {
+  max-width: 560px;
+  margin: 32px auto 0;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  line-height: 1.7;
+  letter-spacing: 1px;
+  color: var(--fh-canvas-label);
+  text-align: center;
+}
+
+.switch {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.switchBox {
+  display: flex;
+  border: 1px solid var(--fh-canvas-label);
+}
+
+.switchItem {
+  padding: 9px 16px;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+}
+
+/* ── La app a pantalla entera ─────────────────────────────────────────────── */
+
+/* La app viva ocupa el viewport: nada de teléfono dibujado. dvh y no vh, para
+   que la barra del navegador móvil no tape la de navegación. */
+.app {
+  /* La app real no dibuja una barra de estado falsa: la franja comienza en
+     el borde superior y el contenido conserva exactamente su altura. */
+  --fh-strip-top: 0px;
+  --fh-content-top: 42px;
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  background: var(--fh-bg);
+  font-family: var(--fh-font-sans);
+}
+
+/* El contexto de posición de las pantallas — el papel que hacía el teléfono. */
+.frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* El conmutador APP / PANTALLAS, flotando discreto sobre la app en desarrollo
+   y en la copia de revisión. El build de producción no lo dibuja. */
+.switchFloat {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 90;
+  display: flex;
+}
+
+.switchFloat > div {
+  border: 1px solid var(--fh-canvas-label);
+  background: var(--fh-canvas);
+}

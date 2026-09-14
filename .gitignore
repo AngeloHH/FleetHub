@@ -1,0 +1,49 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+.env
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+dist-preview
+
+# Catálogo de responses: se genera contra un servidor vivo y trae tokens de
+# esa sesión. Es una foto para leer, no fuente que deba viajar en el repo.
+api-responses.json
+
+# El original del que sale public/tess/eng.traineddata.gz, 23 MB que no se sirven.
+eng.traineddata
+
+# Local Netlify folder
+.netlify
+
+# Empaquetado local para compartir el proyecto; no es fuente.
+FleetHub.zip
+
+# Reportes de Playwright y artefactos de pruebas E2E.
+test-results
+playwright-report
+blob-report
+
+# Copias del almacén antes de una migración. Traen datos reales de compañías:
+# se guardan para poder volver atrás, no para viajar en el repositorio.
+backups/

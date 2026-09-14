@@ -1,0 +1,42 @@
+/* The accordion panel that unfolds below a field, and its rows. */
+
+.panel {
+  /* Continues the field: same surface, same border, no top edge — so the box
+     and the panel read as one unfolding block. */
+  overflow-y: auto;
+  background: var(--fh-surface);
+  border: 1px solid var(--fh-border);
+  border-top: none;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  flex: none;
+  text-align: left;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ── the dialling-code rows ─────────────────────────────────────────────── */
+
+.dial {
+  font-family: var(--fh-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  width: 42px;
+  flex: none;
+}
+
+.country {
+  flex: 1;
+  font-family: var(--fh-font-sans);
+  font-size: 13px;
+  color: var(--fh-ink);
+}

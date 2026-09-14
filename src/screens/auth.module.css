@@ -1,0 +1,398 @@
+/* A · entrar, B · registro, C · confirmar código y D · crear contraseña. */
+
+.step {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--fh-ink-on-muted);
+}
+
+/* Uppercase monospace note, the caption these four screens hang under most
+   of their controls. */
+.note {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.link {
+  color: var(--fh-accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── A · entrar ─────────────────────────────────────────────────────────── */
+
+.brand {
+  position: absolute;
+  top: 110px;
+  left: 0;
+  right: 0;
+  padding: 0 28px;
+}
+
+.wordmark {
+  font-family: var(--fh-font-mono);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--fh-ink);
+}
+
+.tagline {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--fh-muted);
+  margin-top: 8px;
+}
+
+.rule {
+  height: 3px;
+  background: var(--fh-accent);
+  width: 56px;
+  margin-top: 20px;
+}
+
+/* Scrolls: the country panel and validation notes both add height. */
+.form {
+  position: absolute;
+  top: 250px;
+  left: 0;
+  right: 0;
+  bottom: 96px;
+  padding: 0 28px;
+  overflow-y: auto;
+}
+
+.tabs {
+  display: flex;
+  font-family: var(--fh-font-mono);
+  border: 1px solid var(--fh-border);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+}
+
+.submit {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.hint {
+  margin-top: 12px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  color: var(--fh-muted);
+}
+
+.or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.orLine {
+  flex: 1;
+  height: 1px;
+  background: var(--fh-border);
+}
+
+.orWord {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--fh-muted);
+}
+
+.otherWay {
+  width: 100%;
+  height: 50px;
+  margin: 20px 0 4px;
+  border: 1.5px solid var(--fh-border);
+  background: transparent;
+  color: var(--fh-ink);
+  font-family: var(--fh-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 28px 34px;
+}
+
+.footerLine {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+
+.muted {
+  color: var(--fh-muted);
+}
+
+.build {
+  text-align: center;
+  margin-top: 14px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--fh-muted);
+}
+
+/* ── B · registro ───────────────────────────────────────────────────────── */
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 10px;
+  padding: 9px 11px;
+}
+
+.bannerText {
+  flex: 1;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+/* Validation notes make the form taller than the design's fixed slot. */
+.registerForm {
+  position: absolute;
+  top: 110px;
+  left: 0;
+  right: 0;
+  bottom: 104px;
+  padding: 0 24px;
+  overflow-y: auto;
+}
+
+.codeHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.regenerate {
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--fh-accent);
+  cursor: pointer;
+}
+
+.codeBoxes {
+  margin-top: 8px;
+}
+
+.codeNote {
+  margin-top: 9px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+/* The row that turns the registration into a company sign-up. */
+.adminRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 11px 12px;
+}
+
+.adminName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fh-ink);
+}
+
+.registerFooter {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 24px 26px;
+}
+
+.continue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.signIn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+
+/* ── C · confirmar código ───────────────────────────────────────────────── */
+
+.verify {
+  position: absolute;
+  top: 106px;
+  left: 0;
+  right: 0;
+  padding: 0 24px;
+}
+
+.sms {
+  margin-top: 6px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-muted);
+}
+
+.digits {
+  margin-top: 22px;
+}
+
+.clocks {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  color: var(--fh-muted);
+}
+
+.verifyError {
+  margin-top: 10px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--fh-danger);
+}
+
+/* ── D · crear contraseña ───────────────────────────────────────────────── */
+
+.rule2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.ruleBox {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--fh-muted-soft);
+  flex: none;
+}
+
+.ruleText {
+  flex: 1;
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.reveal {
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: var(--fh-accent);
+  flex: none;
+}
+
+.passwordForm {
+  position: absolute;
+  top: 106px;
+  left: 0;
+  right: 0;
+  bottom: 96px;
+  padding: 0 24px;
+  overflow-y: auto;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--fh-ink);
+  letter-spacing: -0.2px;
+}
+
+.subtitle {
+  font-family: var(--fh-font-mono);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  color: var(--fh-muted);
+  margin-top: 6px;
+}
+
+.meter {
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.meterBar {
+  flex: 1;
+  height: 5px;
+}
+
+.strength {
+  margin-top: 7px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.2px;
+}
+
+.terms {
+  text-align: center;
+  margin-top: 12px;
+  font-family: var(--fh-font-mono);
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  color: var(--fh-muted);
+}

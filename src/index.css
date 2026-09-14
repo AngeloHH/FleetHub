@@ -1,0 +1,123 @@
+@import './design/tokens.css';
+@import './assets/icon-font.css';
+@import './assets/fonts.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--fh-canvas);
+}
+
+/* Animations referenced by name throughout the screens. */
+@keyframes fh-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes fh-focus {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.maplibregl-ctrl-attrib {
+  font-size: 8px !important;
+  opacity: 0.6;
+}
+
+.maplibregl-ctrl-bottom-right {
+  bottom: 2px !important;
+}
+
+/*
+ * The design expresses hover with a `style-hover` attribute, which is a feature
+ * of the dc-runtime that renders .dc.html — it does not exist in React. Each
+ * distinct `style-hover` value in the source maps to one class below.
+ */
+
+/* style-hover="background:#c94a08" */
+.fh-btn-accent:hover {
+  background: var(--fh-accent-hover);
+}
+
+/* style-hover="background:#1c1e1a;color:#f4f5f1" */
+.fh-btn-ink:hover {
+  background: var(--fh-ink);
+  color: var(--fh-surface);
+}
+
+/* style-hover="background:#e8590c" — dark button that warms up */
+.fh-btn-ink-accent:hover {
+  background: var(--fh-accent);
+}
+
+/* style-hover="background:#b3261e;color:#fff" */
+.fh-btn-danger:hover {
+  background: var(--fh-danger);
+  color: #fff;
+}
+
+/* style-hover="border-color:#e8e9e4" — ghost button on a dark footer */
+.fh-btn-ghost-dark:hover {
+  border-color: var(--fh-bg);
+}
+
+/* style-hover="border-color:#1c1e1a" — selectable option cards */
+.fh-opt:hover {
+  border-color: var(--fh-ink);
+}
+
+/* style-hover="border-color:#e8590c" — the add-photo dropzone */
+.fh-photo:hover {
+  border-color: var(--fh-accent);
+}
+
+/* style-hover="background:#e8e9e4" — list rows and split buttons */
+.fh-row:hover {
+  background: var(--fh-bg);
+}
+
+/* style-hover="background:#c8ccc2" — numeric keypad */
+.fh-key:hover {
+  background: var(--fh-border);
+}
+
+/* Scrollable, but without the bar — the half-cut row is what signals more. */
+.fh-no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.fh-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Focus ring in the design's accent, instead of the browser's default black. */
+.fh-focus-ring:focus-visible {
+  outline: 2px solid var(--fh-accent);
+  outline-offset: 1px;
+}
+
+/* Country rows: same cue for pointer hover and for keyboard focus, so arrowing
+   through the list is as legible as mousing over it. */
+.fh-option:hover,
+.fh-option:focus-visible {
+  background: var(--fh-bg);
+}
