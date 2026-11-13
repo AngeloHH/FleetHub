@@ -79,7 +79,7 @@ export function ScanVin({
   onManual,
 }: {
   onBack?: () => void
-  /** Un VIN leído del cuadro — un código de barras que decía uno válido. */
+  /** A VIN read from the plate's QR code or printed text. */
   onDetected?: (vin: string) => void
   onManual?: () => void
 } = {}) {
@@ -89,6 +89,9 @@ export function ScanVin({
   const live = Boolean(onDetected || onManual)
   const video = useRef<HTMLVideoElement | null>(null)
   const stream = useRef<MediaStream | null>(null)
+  const active = useRef(false)
+  const detected = useRef(false)
+  const pending = useRef<Promise<string | null> | null>(null)
   const [camera, setCamera] = useState<CameraState>('idle')
   const [miss, setMiss] = useState<string | null>(null)
   /** Qué hace el lector: aún nada, buscando cuadro a cuadro, o no lo hay. */
@@ -101,6 +104,7 @@ export function ScanVin({
       setCamera('none')
       return
     }
+    active.current = true
     let alive = true
     setCamera('asking')
     navigator.mediaDevices
@@ -136,46 +140,46 @@ export function ScanVin({
       .catch(() => alive && setCamera('denied'))
     return () => {
       alive = false
+      active.current = false
       stream.current?.getTracks().forEach((t) => t.stop())
       stream.current = null
     }
   }, [live])
 
-  /** Un cuadro del trozo que cae bajo el marco, listo para leer. */
-  const frame = () => {
+  /** Share one read between the live scan and the capture button. */
+  const scanFrame = () => {
+    if (pending.current) return pending.current
     const el = video.current
     const plate = plateRef.current?.getBoundingClientRect()
     const screen = el?.parentElement?.getBoundingClientRect()
-    if (!el || !plate || !screen) return null
-    return frameUnder(el, plate, screen)
+    const shot = el && plate && screen && frameUnder(el, plate, screen)
+    if (!shot) return Promise.resolve(null)
+    pending.current = readVin(shot).finally(() => { pending.current = null })
+    return pending.current
   }
 
-  /**
-   * El bucle: mientras la cámara está en vivo, el visor lee el marco cuadro a
-   * cuadro — los números estampados, no un código de barras — y en cuanto un
-   * cuadro contiene un VIN válido, el visor avanza solo. Un cuadro cada
-   * segundo y nunca dos a la vez: leer cuesta más que mirar.
-   */
+  const accept = (vin: string) => {
+    if (!active.current || detected.current) return
+    detected.current = true
+    onDetected?.(vin)
+  }
+
+  /** Scan the guide once per second while the camera is live. */
   useEffect(() => {
     if (camera !== 'live' || !onDetected) return
     let alive = true
-    let busy = false
     void readerAvailable().then((yes) => {
       if (alive) setReading(yes ? 'looking' : 'unavailable')
     })
     const tick = setInterval(async () => {
-      if (busy || !alive) return
-      busy = true
+      if (pending.current || detected.current || !alive) return
       try {
-        const shot = frame()
-        const vin = shot && (await readVin(shot))
+        const vin = await scanFrame()
         if (vin && alive) {
           clearInterval(tick)
-          onDetected(vin)
+          accept(vin)
         }
-      } finally {
-        busy = false
-      }
+      } catch { /* Try a fresh frame on the next tick. */ }
     }, 1000)
     return () => {
       alive = false
@@ -202,13 +206,13 @@ export function ScanVin({
       return
     }
     try {
-      const shot = frame()
-      const vin = shot && (await readVin(shot))
-      if (vin) onDetected?.(vin)
+      const vin = await scanFrame()
+      if (!active.current || detected.current) return
+      if (vin) accept(vin)
       else if (reading === 'unavailable') offerManual('LECTOR DE VIN NO DISPONIBLE')
       else offerManual('NO SE ENCONTRÓ UN VIN VÁLIDO')
     } catch {
-      offerManual('NO SE ENCONTRÓ UN VIN VÁLIDO')
+      if (active.current && !detected.current) offerManual('NO SE ENCONTRÓ UN VIN VÁLIDO')
     }
   }
 
@@ -279,7 +283,7 @@ export function ScanVin({
         <span className={s.aimText} style={miss ? { color: color.accent } : undefined}>
           {miss ??
             (reading === 'looking'
-              ? 'LEYENDO LOS NÚMEROS · MANTÉN EL VIN DENTRO DEL MARCO'
+              ? 'BUSCANDO EL VIN · ENCUADRA EL TEXTO Y EL QR SI ESTÁ VISIBLE'
               : reading === 'unavailable'
                 ? 'LECTOR NO DISPONIBLE · USA MANUAL'
                 : 'MANTÉN EL CÓDIGO DENTRO DEL MARCO')}
@@ -539,7 +543,7 @@ export function VinConfirm({
   return (
     <Screen>
       <TopStrip
-        title={source === 'ocr' ? 'RESULTADO_OCR' : 'CAPTURA_MANUAL'}
+        title={source === 'ocr' ? 'RESULTADO_ESCANEO' : 'CAPTURA_MANUAL'}
         leading={
           <BackChevron onClick={onBack} />
         }

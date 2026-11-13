@@ -11,7 +11,19 @@
 // de abrir un navegador.
 
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { adaptive, stretched } from './ocr'
+import { adaptive, reconcileVinReads, stretched } from './ocr'
+
+describe('reconciling VIN reads through glare', () => {
+  test('recovers the only valid combination from two aligned reads', () => {
+    expect(reconcileVinReads(['5FTFW1E06NFA00001', '1ETFW1E06NFA00001']))
+      .toBe('1FTFW1E06NFA00001')
+  })
+
+  test('does not repair a lone read or choose between two valid candidates', () => {
+    expect(reconcileVinReads(['5FTFW1E06NFA00001'])).toBeNull()
+    expect(reconcileVinReads(['1FTFW1E06NFA00001', 'AFTFW1E06NFA00001'])).toBeNull()
+  })
+})
 
 type Falso = {
   width: number

@@ -546,7 +546,6 @@ function LiveApp({ path }: { path: string }) {
         return (
           <ScanVin
             onBack={() => go('/map')}
-            // Un VIN que el lector de códigos del visor leyó de verdad.
             onDetected={(vin) => {
               setScanned({ vin, source: 'ocr' })
               go('/scan/vin')

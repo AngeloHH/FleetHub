@@ -14,11 +14,19 @@
 // archivo que no sabe abrir.
 
 import { expect, test, type APIRequestContext, type Page } from 'playwright/test'
+import { readFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
+import { prepareZXingModule, writeBarcode } from 'zxing-wasm/writer'
 import { vehicleCode } from '../../src/domain/identity'
 
 const MIAMI = { latitude: 25.7617, longitude: -80.1918 }
 const VIN = '3MVDMBBM2PM512094'
 const PASSWORD = 'Clave-Segura1'
+
+// Keep real windshield photos out of test artifacts.
+if (process.env.FH_PHOTO_DIR && process.env.FH_PHOTO_EXPECTED) {
+  test.use({ screenshot: 'off', trace: 'off', video: 'off' })
+}
 
 const identity = () => {
   const stamp = `${Date.now()}${Math.floor(Math.random() * 1_000_000)}`
@@ -102,6 +110,42 @@ async function signIn(page: Page, email: string) {
   await page.getByLabel('CONTRASEÑA', { exact: true }).fill(PASSWORD)
   await page.getByRole('button', { name: 'ENTRAR', exact: true }).click()
   await expect(page).toHaveURL(/\/profile$/)
+}
+
+async function cameraImage(page: Page, imageUrl: string, center = { x: 0.5, y: 0.5 }) {
+  await page.addInitScript(({ imageUrl, center }) => {
+    navigator.mediaDevices.getUserMedia = async () => {
+      const image = new Image()
+      image.src = imageUrl
+      await image.decode()
+      const canvas = document.createElement('canvas')
+      canvas.width = 1440
+      canvas.height = 2560
+      const context = canvas.getContext('2d')!
+      const stream = canvas.captureStream(15)
+      const render = () => {
+        if (!stream.active) return
+        const video = document.querySelector('video')
+        const guide = document.querySelector('[class*="_plate_"]')
+        if (video && guide) {
+          const screen = video.getBoundingClientRect()
+          const plate = guide.getBoundingClientRect()
+          const scale = Math.max(screen.width / canvas.width, screen.height / canvas.height)
+          const x = canvas.width / 2 + (plate.left + plate.width / 2 - screen.left - screen.width / 2) / scale
+          const y = canvas.height / 2 + (plate.top + plate.height / 2 - screen.top - screen.height / 2) / scale
+          context.fillStyle = '#222'
+          context.fillRect(0, 0, canvas.width, canvas.height)
+          const imageScale = Math.min(1, canvas.width / image.width, canvas.height / image.height)
+          const width = Math.round(image.width * imageScale)
+          const height = Math.round(image.height * imageScale)
+          context.drawImage(image, Math.round(x - center.x * width), Math.round(y - center.y * height), width, height)
+        }
+        requestAnimationFrame(render)
+      }
+      requestAnimationFrame(render)
+      return stream
+    }
+  }, { imageUrl, center })
 }
 
 test.describe('en un teléfono', () => {
@@ -258,5 +302,48 @@ test.describe('en un teléfono', () => {
     expect(position).not.toBeNull()
     expect(Math.abs(position!.latitude - MIAMI.latitude)).toBeLessThan(0.001)
     expect(Math.abs(position!.longitude - MIAMI.longitude)).toBeLessThan(0.001)
+  })
+
+  test('the camera reads a windshield QR and opens VIN confirmation', async ({ page, request }) => {
+    const vin = '1FTFW1E06NFA00001'
+    const wasmBinary = await readFile(new URL(import.meta.resolve('zxing-wasm/writer/zxing_writer.wasm')))
+    prepareZXingModule({ overrides: { wasmBinary } })
+    const { image } = await writeBarcode(vin, { format: 'QRCode', scale: 8 })
+    if (!image) throw new Error('Could not generate the QR test image')
+    const png = Buffer.from(await image.arrayBuffer()).toString('base64')
+
+    const account = await outfit(request)
+    await cameraImage(page, `data:image/png;base64,${png}`)
+    await signIn(page, account.email)
+    await page.goto('/#/scan')
+    await expect(page).toHaveURL(/\/scan\/vin$/, { timeout: 20_000 })
+    await expect(page.getByText(vin, { exact: true })).toBeVisible()
+  })
+
+  test.describe('local windshield photos', () => {
+    const directory = process.env.FH_PHOTO_DIR
+    const expected = process.env.FH_PHOTO_EXPECTED
+    if (!directory || !expected) return
+    const defaultCenters = [
+      { x: 0.64, y: 0.5 }, { x: 0.66, y: 0.5 }, { x: 0.63, y: 0.48 },
+      { x: 0.62, y: 0.54 }, { x: 0.58, y: 0.38 },
+    ]
+    const centers = process.env.FH_PHOTO_CENTERS
+      ? JSON.parse(process.env.FH_PHOTO_CENTERS) as typeof defaultCenters
+      : defaultCenters
+    for (const [i, vin] of expected.split(',').entries()) {
+      test(`photo ${i + 1}`, async ({ page, request }) => {
+        const file = await readFile(resolve(directory, `${i + 1}-Photo-${i + 1}.jpg`))
+        await page.route('**/*', (route) => {
+          return new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort()
+        })
+        const account = await outfit(request)
+        await cameraImage(page, `data:image/jpeg;base64,${file.toString('base64')}`, centers[i])
+        await signIn(page, account.email)
+        await page.goto('/#/scan')
+        await expect(page).toHaveURL(/\/scan\/vin$/, { timeout: 20_000 })
+        expect(await page.getByText(vin, { exact: true }).isVisible()).toBe(true)
+      })
+    }
   })
 })

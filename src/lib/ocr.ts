@@ -1,19 +1,48 @@
-// Leer el VIN estampado — los números de la guantera, no un código de barras.
-//
-// El lector es tesseract compilado a wasm, cargado sólo cuando el visor lo
-// necesita y servido desde /tess con la app misma: un patio sin cobertura no
-// puede depender de un CDN. Un solo worker para toda la sesión, porque
-// arrancarlo cuesta más que usarlo.
-//
-// La honestidad del visor vive aquí: readVin devuelve un VIN válido o null —
-// nunca «lo que creyó ver». Diecisiete caracteres del alfabeto del VIN,
-// encontrados como ventana dentro de lo leído, porque el OCR arrastra ruido
-// por los bordes y el VIN de verdad viene con él pegado.
+// Read the plate's QR code or printed VIN locally in the browser.
 
-import { hasVinCheckDigit, isValidVin, VIN_LENGTH, vinCharactersOnly } from '../domain'
+import { hasVinCheckDigit, VIN_LENGTH, vinCharactersOnly } from '../domain'
 import type { Worker } from 'tesseract.js'
+import { brightDetails, estimatePlateLine, findVinLine, plateStrokes } from './vin-image'
 
 let reader: Promise<Worker | null> | null = null
+let barcodeReader: Promise<Awaited<ReturnType<typeof loadBarcodeReader>> | null> | undefined
+
+async function loadBarcodeReader() {
+  const [zxing, { default: wasmUrl }] = await Promise.all([
+    import('zxing-wasm/reader'),
+    import('zxing-wasm/reader/zxing_reader.wasm?url'),
+  ])
+  await zxing.prepareZXingModule({
+    overrides: { locateFile: () => wasmUrl },
+    fireImmediately: true,
+  })
+  return zxing.readBarcodes
+}
+
+function qrReader() {
+  barcodeReader ??= loadBarcodeReader().catch(() => null)
+  return barcodeReader
+}
+
+async function readQr(frame: HTMLCanvasElement): Promise<string | null> {
+  const readBarcodes = await qrReader()
+  const context = frame.getContext('2d', { willReadFrequently: true })
+  if (!readBarcodes || !context) return null
+  const attempts = [
+    () => context.getImageData(0, 0, frame.width, frame.height),
+    () => brightDetails(frame, 6, 9),
+    () => brightDetails(frame, 12, 18),
+  ]
+  for (const prepare of attempts) {
+    const image = prepare()
+    if (!image) continue
+    const codes = await readBarcodes(image, { formats: ['QRCode'] })
+    const vins = new Set(codes.map((code) => code.text.trim().toUpperCase()).filter(hasVinCheckDigit))
+    if (vins.size === 1) return vins.values().next().value ?? null
+    if (vins.size > 1) return null
+  }
+  return null
+}
 
 /** El worker, una vez. Si los activos no están donde deben —la copia de un
  *  solo archivo no los lleva— la respuesta es null, no una excepción a mitad
@@ -42,8 +71,8 @@ function vinReader(): Promise<Worker | null> {
 }
 
 /** ¿Hay lector? Para que el visor pueda decir «no» antes de prometer leer. */
-export function readerAvailable() {
-  return vinReader().then((w) => w !== null)
+export async function readerAvailable() {
+  return Boolean((await qrReader()) ?? (await vinReader()))
 }
 
 /**
@@ -56,17 +85,17 @@ export function vinInside(text: string): string | null {
   // Sin recortar a diecisiete: lo que hace falta es buscar el VIN dentro de lo
   // leído, y recortar antes deja una sola ventana posible.
   const clean = vinCharactersOnly(text)
-  const candidates: string[] = []
+  const candidates = new Set<string>()
   for (let at = 0; at + VIN_LENGTH <= clean.length; at++) {
     const candidate = clean.slice(at, at + VIN_LENGTH)
-    if (isValidVin(candidate)) candidates.push(candidate)
+    if (hasVinCheckDigit(candidate)) candidates.add(candidate)
   }
   // El dígito de control decide. Diecisiete caracteres del alfabeto los cumple
   // cualquier trozo del texto; la aritmética de la posición nueve, casi
   // ninguno. Si nada cuadra, no se devuelve el que mejor pinta: se devuelve
   // nada, y el visor sigue mirando. Otro cuadro no cuesta nada, y una unidad
   // dada de alta con un VIN mal leído sí.
-  return candidates.find(hasVinCheckDigit) ?? null
+  return candidates.size === 1 ? candidates.values().next().value ?? null : null
 }
 
 /**
@@ -96,13 +125,124 @@ function* readings(frame: HTMLCanvasElement) {
 }
 
 export async function readVin(frame: HTMLCanvasElement): Promise<string | null> {
+  if (!frame.width || !frame.height) return null
+  const qr = await readQr(frame).catch(() => null)
+  if (qr) return qr
+
   const worker = await vinReader()
   if (!worker) return null
+  const printed = await readBrightVin(frame, worker)
+  if (printed) return printed
   for (const attempt of readings(frame)) {
     if (!attempt) continue
     const { data } = await worker.recognize(attempt)
     const vin = vinInside(data.text)
     if (vin) return vin
+  }
+  return readGlareVin(frame, worker)
+}
+
+async function readGlareVin(frame: HTMLCanvasElement, worker: Worker) {
+  const edges = plateStrokes(frame, 5, 27, true)
+  const line = edges && estimatePlateLine(edges.glyphs, frame.width, frame.height)
+  if (!line) return null
+  const source = document.createElement('canvas')
+  const binary = document.createElement('canvas')
+  const context = source.getContext('2d', { willReadFrequently: true })
+  const output = binary.getContext('2d')
+  if (!context || !output) return null
+
+  const expanded = estimatePlateLine(edges.glyphs, frame.width, frame.height, true) ?? line
+  const x = Math.max(0, expanded.x - Math.round(expanded.height * 0.07))
+  const flat = {
+    x,
+    y: expanded.y + Math.round(expanded.height * 0.01),
+    width: Math.min(frame.width - x, expanded.width + Math.round(expanded.height * 0.11)),
+    height: Math.round(expanded.height * 0.88),
+    slope: expanded.slope + 0.005,
+  }
+  const reads: string[] = []
+  for (const { crop, scale, radius, contrast } of [
+    { crop: line, scale: 0.7, radius: 3, contrast: 25 },
+    { crop: line, scale: 0.7, radius: 3, contrast: 27 },
+    { crop: line, scale: 0.7, radius: 4, contrast: 29 },
+    { crop: flat, scale: 1, radius: 4, contrast: 26 },
+    { crop: flat, scale: 1, radius: 6, contrast: 24 },
+    { crop: flat, scale: 1, radius: 7, contrast: 24 },
+  ]) {
+    source.width = binary.width = Math.round(crop.width * scale)
+    source.height = binary.height = Math.round(crop.height * scale)
+    const rise = crop.slope * source.width
+    context.setTransform(1, -crop.slope, 0, 1, 0, crop === flat ? source.height * 0.17 : Math.max(0, rise))
+    context.drawImage(frame, crop.x, crop.y, crop.width, crop.height, 0, 0, source.width, source.height)
+    const strokes = plateStrokes(source, radius, contrast, true)
+    if (!strokes) continue
+    output.putImageData(strokes.image, 0, 0)
+    const { data } = await worker.recognize(binary)
+    const text = vinCharactersOnly(data.text)
+    if (text.length !== VIN_LENGTH) continue
+    if (hasVinCheckDigit(text) && reads.includes(text)) return text
+    reads.push(text)
+  }
+  return reconcileVinReads(reads)
+}
+
+/** Only combine characters the OCR actually saw at the same position. */
+export function reconcileVinReads(reads: string[]) {
+  const candidates = new Set<string>()
+  for (let i = 0; i < reads.length; i++) {
+    const first = reads[i]
+    if (first.length !== VIN_LENGTH) continue
+    for (const second of reads.slice(i + 1)) {
+      if (second.length !== VIN_LENGTH || first[8] !== second[8]) continue
+      const differences = [...first].flatMap((char, at) => char === second[at] ? [] : [at])
+      if (differences.length > 2) continue
+      const options = differences.reduce((values, at) => [
+        ...values,
+        ...values.map((value) => value.slice(0, at) + second[at] + value.slice(at + 1)),
+      ], [first])
+      for (const option of options) if (hasVinCheckDigit(option)) candidates.add(option)
+    }
+  }
+  return candidates.size === 1 ? candidates.values().next().value ?? null : null
+}
+
+async function readBrightVin(frame: HTMLCanvasElement, worker: Worker) {
+  // Try stronger background rejection and a larger text sample if the
+  // camera's resampling has made the thin strokes hard to distinguish.
+  return (await readVinLine(frame, worker, 24, 1, [24, 18, 32]))
+    ?? readVinLine(frame, worker, 32, 1.25, [16, 20])
+}
+
+async function readVinLine(
+  frame: HTMLCanvasElement, worker: Worker, contrastLevel: number, scale: number, thresholds: number[],
+) {
+  const contrast = brightDetails(frame, 12, contrastLevel)
+  const line = contrast && findVinLine(contrast)
+  if (!line) return null
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.round(line.width * scale)
+  canvas.height = Math.round(line.height * scale)
+  const context = canvas.getContext('2d', { willReadFrequently: true })
+  if (!context) return null
+  context.drawImage(frame, line.x, line.y, line.width, line.height, 0, 0, canvas.width, canvas.height)
+
+  // Require agreement between two contrast levels before accepting faint text.
+  const binary = document.createElement('canvas')
+  binary.width = canvas.width
+  binary.height = canvas.height
+  const output = binary.getContext('2d')
+  if (!output) return null
+  const seen = new Set<string>()
+  for (const threshold of thresholds) {
+    const image = brightDetails(canvas, Math.round(12 * scale), threshold)
+    if (!image) continue
+    output.putImageData(image, 0, 0)
+    const { data } = await worker.recognize(binary)
+    const vin = vinCharactersOnly(data.text)
+    if (!hasVinCheckDigit(vin)) continue
+    if (seen.has(vin)) return vin
+    seen.add(vin)
   }
   return null
 }
@@ -203,14 +343,19 @@ export function adaptive(frame: HTMLCanvasElement, invert: boolean) {
 export function frameUnder(video: HTMLVideoElement, plate: DOMRect, screen: DOMRect) {
   const vw = video.videoWidth
   const vh = video.videoHeight
-  if (!vw || !vh) return null
+  if (!vw || !vh || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return null
   const scale = Math.max(screen.width / vw, screen.height / vh)
   const offsetX = (scale * vw - screen.width) / 2
   const offsetY = (scale * vh - screen.height) / 2
-  const sx = (plate.left - screen.left + offsetX) / scale
-  const sy = (plate.top - screen.top + offsetY) / scale
-  const sw = plate.width / scale
-  const sh = plate.height / scale
+  // Snap to sensor pixels so fractional CSS positions do not blur thin strokes.
+  const left = (plate.left - screen.left + offsetX) / scale
+  const right = (plate.right - screen.left + offsetX) / scale
+  // Include the text at the edges of the guide, even on narrow displays.
+  const margin = (right - left) * 0.1
+  const sx = Math.max(0, Math.round(left - margin))
+  const sy = Math.round((plate.top - screen.top + offsetY) / scale)
+  const sw = Math.min(vw, Math.round(right + margin)) - sx
+  const sh = Math.round(plate.height / scale)
 
   /*
    * El tamaño de salida se saca del sensor, no de la pantalla.
@@ -229,6 +374,6 @@ export function frameUnder(video: HTMLVideoElement, plate: DOMRect, screen: DOMR
   const canvas = document.createElement('canvas')
   canvas.width = outW
   canvas.height = outH
-  canvas.getContext('2d')?.drawImage(video, sx, sy, sw, sh, 0, 0, outW, outH)
+  canvas.getContext('2d', { willReadFrequently: true })?.drawImage(video, sx, sy, sw, sh, 0, 0, outW, outH)
   return canvas
 }
